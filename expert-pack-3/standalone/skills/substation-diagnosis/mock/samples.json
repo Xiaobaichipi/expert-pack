@@ -1,0 +1,203 @@
+{
+  "skill": "substation-diagnosis",
+  "displayName": "诊断专家",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "get_asset_by_id",
+      "params": {
+        "assetId": "AST-102-0001"
+      },
+      "note": "设备身份",
+      "response": {
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "assetType": "transformer",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "model": "SSZ11-180000/220",
+        "capacityMVA": 180,
+        "voltageRatio": "220/110/10.5kV",
+        "manufacturer": "特变电工",
+        "manufacturerId": "MF-001",
+        "commissioningDate": "2016-05-18",
+        "assetStatus": "在运",
+        "psrId": "PSR-220-0001",
+        "utcNum": "UTC-2020-000123",
+        "topoNodeId": "TOPO-220-0001",
+        "graphicId": "GEO-220-0001"
+      }
+    },
+    {
+      "tool": "inquire_defect",
+      "params": {
+        "deviceId": "AST-102-0001"
+      },
+      "note": "设备缺陷",
+      "response": {
+        "list": [
+          {
+            "defectId": "DF-2026-0001",
+            "defectNo": "QXB-2026-0001",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "defectLevel": "严重",
+            "discoverTime": "2026-09-12 10:22",
+            "part": "本体/套管",
+            "status": "处理中",
+            "handler": "张工"
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "view_defect",
+      "params": {
+        "defectId": "DF-2026-0001"
+      },
+      "note": "缺陷详情",
+      "response": {
+        "defectId": "DF-2026-0001",
+        "defectNo": "QXB-2026-0001",
+        "deviceId": "AST-102-0001",
+        "psrId": "PSR-220-0001",
+        "deviceName": "1号主变",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "defectDesc": "本体套管油位偏低，存在渗油痕迹",
+        "defectLevel": "严重",
+        "discoverTime": "2026-09-12 10:22",
+        "part": "本体/套管",
+        "status": "处理中",
+        "handler": "张工",
+        "photos": [
+          "https://example.com/defect/DF-2026-0001-1.jpg"
+        ],
+        "processRecords": [
+          {
+            "time": "2026-09-12 11:05",
+            "action": "缺陷登记",
+            "operator": "张工"
+          },
+          {
+            "time": "2026-09-13 09:30",
+            "action": "安排处理",
+            "operator": "王班长"
+          }
+        ],
+        "acceptance": {
+          "result": "未验收",
+          "time": ""
+        }
+      }
+    },
+    {
+      "tool": "list_fault_trip_records",
+      "params": {
+        "deviceId": "AST-102-0001"
+      },
+      "note": "故障跳闸记录",
+      "response": {
+        "list": [
+          {
+            "faultId": "FT-2026-0001",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "faultTime": "2026-08-03 02:17",
+            "protectionAction": "差动保护动作",
+            "cause": "套管绝缘受潮",
+            "faultLevel": "一般",
+            "restoreTime": "2026-08-03 18:40"
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "find_repair_test",
+      "params": {
+        "deviceId": "AST-102-0001"
+      },
+      "note": "修试记录",
+      "response": {
+        "list": [
+          {
+            "recordId": "RT-2025-0001",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "testType": "预防性试验",
+            "testDate": "2025-04-11",
+            "result": "合格",
+            "tester": "赵工",
+            "dataSummary": "绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ"
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "list_hazard",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "站内隐患",
+      "response": {
+        "list": [
+          {
+            "hazardId": "HZ-2026-0001",
+            "hazardType": "外部",
+            "riskLevel": "较大",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "hazardDesc": "站外施工塔吊作业半径侵入站区，存在外破风险",
+            "measures": "加装防护围栏并纳入巡视",
+            "discoverDate": "2026-08-06",
+            "deadline": "2026-12-31",
+            "status": "整改中"
+          },
+          {
+            "hazardId": "HZ-2026-0003",
+            "hazardType": "外部",
+            "riskLevel": "重大",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "hazardDesc": "进站道路上方树木超高，台风天可能倒伏",
+            "measures": "协调园林部门修剪，并纳入特巡",
+            "discoverDate": "2026-07-11",
+            "deadline": "2026-09-30",
+            "status": "已闭环"
+          }
+        ],
+        "total": 2,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    }
+  ]
+}

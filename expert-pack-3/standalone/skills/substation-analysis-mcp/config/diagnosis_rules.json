@@ -1,0 +1,387 @@
+{
+  "schemaVersion": "1.0.0",
+  "engineVersion": "1.1.0",
+  "note": "跨域证据链诊断规则库。规则由「条件组合」驱动：conditionsMode=all 表示全部条件命中才算命中；条件类型支持 keyword/threshold/ageYears/defectCount/faultCount/testResult/testCount/testStale/protectionAction/familyCount/samePartCount/missingFields/anyOf。新增或调整规则只改本文件，不改代码。",
+  "windowDays": 365,
+  "familyMinCount": 3,
+  "evidenceScoreBonus": 0.02,
+  "evidenceScoreBonusCap": 0.10,
+  "maxScore": 0.99,
+  "confidence": {
+    "base": 0.25,
+    "evidenceWeight": 0.10,
+    "evidenceMaxCount": 4,
+    "completenessWeight": 0.30,
+    "min": 0.30,
+    "max": 0.95
+  },
+  "rules": [
+    {
+      "ruleId": "DIAG-BUSHING-MOISTURE",
+      "name": "套管受潮/绝缘劣化",
+      "dimension": "tests",
+      "score": 0.78,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "faults", "tests", "patrolRecords"],
+          "any": ["套管", "末屏"]
+        },
+        {
+          "type": "keyword",
+          "scopes": ["tests", "defects", "hazards", "faults", "patrolRecords"],
+          "any": ["介损", "电容量", "绝缘电阻", "泄漏电流", "受潮", "渗油"]
+        }
+      ],
+      "suggestions": [
+        "复核套管介损、电容量与绝缘电阻试验原始数据，确认是否超标",
+        "检查套管末屏接地引线与密封状况，安排停电取油样做色谱分析",
+        "结合检修计划更换受潮套管或进行干燥处理，处理后复测介损"
+      ],
+      "knowledgeQueries": [
+        "套管介损超标判定标准",
+        "变压器套管渗油缺陷定级与处理要求",
+        "套管末屏接地异常处理工艺"
+      ],
+      "missingEvidence": [
+        "套管预防性试验（介损/电容量/绝缘电阻）原始值",
+        "套管红外测温记录",
+        "套管油色谱分析报告"
+      ]
+    },
+    {
+      "ruleId": "DIAG-MECH-BOX-MOISTURE",
+      "name": "机构箱/二次回路受潮",
+      "dimension": "defects",
+      "score": 0.68,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "faults", "patrolRecords"],
+          "any": ["机构箱", "二次回路", "端子箱", "控制回路"]
+        },
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "faults", "patrolRecords"],
+          "any": ["受潮", "凝露", "拒动", "误动", "直流接地", "故障"]
+        }
+      ],
+      "suggestions": [
+        "检查机构箱加热器、除湿装置与密封条运行状态",
+        "测量二次回路绝缘电阻，排查直流接地与端子锈蚀",
+        "对受潮端子箱进行干燥处理并加装防凝露措施"
+      ],
+      "knowledgeQueries": [
+        "断路器机构箱受潮缺陷定级标准",
+        "二次回路绝缘电阻测量要求",
+        "端子箱防凝露运维措施"
+      ],
+      "missingEvidence": [
+        "机构箱温湿度记录",
+        "二次回路绝缘电阻测试记录",
+        "机构箱密封与加热器检查记录"
+      ]
+    },
+    {
+      "ruleId": "DIAG-OLTC",
+      "name": "有载分接开关异常",
+      "dimension": "defects",
+      "score": 0.60,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "faults", "tests", "patrolRecords"],
+          "any": ["分接开关", "有载", "OLTC", "调压开关"]
+        },
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "faults", "tests", "patrolRecords"],
+          "any": ["异常", "卡涩", "拒动", "滑挡", "连动", "油质"]
+        }
+      ],
+      "suggestions": [
+        "检查有载分接开关油位、油质与滤油装置运行情况",
+        "核查分接开关动作次数与切换波形，必要时停电检查触头",
+        "对滑挡/连动异常安排专项检修并做切换试验"
+      ],
+      "knowledgeQueries": [
+        "有载分接开关检修周期与试验项目",
+        "有载分接开关油质不合格处理要求",
+        "分接开关滑挡原因分析与防范措施"
+      ],
+      "missingEvidence": [
+        "有载分接开关动作次数记录",
+        "分接开关油色谱分析报告",
+        "切换试验波形与触头检查记录"
+      ]
+    },
+    {
+      "ruleId": "DIAG-COOLING-OVERLOAD",
+      "name": "冷却系统异常/过负荷",
+      "dimension": "load",
+      "score": 0.65,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "threshold", "field": "load.loadRate", "op": ">", "value": 90},
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "tests", "patrolRecords"],
+          "any": ["冷却器", "风扇", "油温", "温升", "冷却系统"]
+        }
+      ],
+      "suggestions": [
+        "核查冷却器组投切逻辑与风扇运行状态，确认是否缺相或卡涩",
+        "结合负载曲线评估过负荷持续时间与油温温升趋势",
+        "必要时转移负荷或申请方式调整，避免长期重载运行"
+      ],
+      "knowledgeQueries": [
+        "变压器过负荷运行限值与温升要求",
+        "冷却器故障处理与负载转带原则",
+        "变压器油温异常原因分析"
+      ],
+      "missingEvidence": [
+        "冷却器组运行状态与投切记录",
+        "油温/绕组温度历史曲线",
+        "负载率多期时间序列"
+      ]
+    },
+    {
+      "ruleId": "DIAG-FAMILY-DEFECT",
+      "name": "家族性缺陷",
+      "dimension": "defects",
+      "score": 0.62,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "familyCount", "op": ">=", "value": 3}
+      ],
+      "suggestions": [
+        "按同型号、同厂家、同部位拉通排查全站在运设备",
+        "联系制造厂家开展家族性缺陷专项分析与整改",
+        "将同批次设备纳入重点巡视与专项检测计划"
+      ],
+      "knowledgeQueries": [
+        "家族性缺陷判定与排查要求",
+        "同型号设备批量缺陷处理原则",
+        "设备家族性缺陷反措要求"
+      ],
+      "missingEvidence": [
+        "同型号同厂家设备的全量缺陷台账",
+        "同批次设备投运清单与运行年限",
+        "制造厂家缺陷分析报告"
+      ]
+    },
+    {
+      "ruleId": "DIAG-REPEAT-DEFECT",
+      "name": "重复性缺陷",
+      "dimension": "defects",
+      "score": 0.55,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "samePartCount", "op": ">=", "value": 2}
+      ],
+      "suggestions": [
+        "对同部位反复出现的缺陷开展根因分析，避免重复消缺",
+        "核查历次消缺工艺与备件质量，必要时更换部件",
+        "将该部位纳入重点监视并缩短巡视周期"
+      ],
+      "knowledgeQueries": [
+        "重复缺陷认定与考核口径",
+        "设备同部位重复缺陷处理要求",
+        "消缺质量验收标准"
+      ],
+      "missingEvidence": [
+        "同部位历次消缺处理记录与验收结论",
+        "备品备件批次与质量证明",
+        "缺陷复现时间间隔统计"
+      ]
+    },
+    {
+      "ruleId": "DIAG-INSTALL-QUALITY",
+      "name": "安装质量问题",
+      "dimension": "defects",
+      "score": 0.50,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "ageYears", "op": "<", "value": 1},
+        {"type": "defectCount", "op": ">=", "value": 1}
+      ],
+      "suggestions": [
+        "核查安装工艺记录、交接试验报告与厂家安装指导书执行情况",
+        "对投运首年缺陷开展安装质量归因，必要时联系厂家到场",
+        "加强投运后 1 年内设备特巡与红外测温"
+      ],
+      "knowledgeQueries": [
+        "设备安装验收标准与交接试验要求",
+        "投运首年设备缺陷归因分析方法",
+        "安装质量问题责任认定要求"
+      ],
+      "missingEvidence": [
+        "安装施工记录与监理验收资料",
+        "交接试验报告",
+        "厂家安装指导书执行确认单"
+      ]
+    },
+    {
+      "ruleId": "DIAG-PROTECTION-MISOP",
+      "name": "保护动作/误动核查",
+      "dimension": "faults",
+      "score": 0.45,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "protectionAction", "withinDays": 365},
+        {
+          "type": "anyOf",
+          "conditions": [
+            {"type": "testResult", "values": ["不合格", "异常"]},
+            {"type": "keyword", "scopes": ["faults"], "any": ["保护误动", "误动作", "越级跳闸"]}
+          ]
+        }
+      ],
+      "suggestions": [
+        "调取保护动作报告与故障录波，核对保护定值与动作逻辑",
+        "结合试验异常数据判断是否存在保护误动或二次回路问题",
+        "必要时开展保护装置校验与整组传动试验"
+      ],
+      "knowledgeQueries": [
+        "差动保护动作原因分析要点",
+        "保护误动判定与处理流程",
+        "继电保护装置校验周期要求"
+      ],
+      "missingEvidence": [
+        "保护动作报告与故障录波文件",
+        "保护定值单与装置校验报告",
+        "二次回路绝缘与端子检查记录"
+      ]
+    },
+    {
+      "ruleId": "DIAG-JOINT-OVERHEAT",
+      "name": "接头/引线过热",
+      "dimension": "defects",
+      "score": 0.60,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "tests", "patrolRecords"],
+          "any": ["接头", "线夹", "引线", "将军帽", "桩头"]
+        },
+        {
+          "type": "keyword",
+          "scopes": ["defects", "hazards", "tests", "patrolRecords"],
+          "any": ["发热", "过热", "红外", "温度", "温升"]
+        }
+      ],
+      "suggestions": [
+        "安排红外测温复测，记录最高温度与环境温度",
+        "检查接头螺栓紧固力矩与接触面氧化情况",
+        "结合停电处理接触面并涂覆导电膏，处理后复测"
+      ],
+      "knowledgeQueries": [
+        "红外测温缺陷判定标准",
+        "接头过热处理工艺要求",
+        "载流接头接触电阻测量标准"
+      ],
+      "missingEvidence": [
+        "红外测温图像与温度记录",
+        "接触电阻测量数据",
+        "历次接头处理记录"
+      ]
+    },
+    {
+      "ruleId": "DIAG-INSULATION-AGING",
+      "name": "绝缘老化",
+      "dimension": "tests",
+      "score": 0.58,
+      "conditionsMode": "all",
+      "conditions": [
+        {"type": "ageYears", "op": ">", "value": 20},
+        {
+          "type": "anyOf",
+          "conditions": [
+            {"type": "testResult", "values": ["不合格", "异常"]},
+            {"type": "keyword", "scopes": ["tests", "defects"], "any": ["绝缘老化", "介损超标", "绝缘电阻下降"]}
+          ]
+        }
+      ],
+      "suggestions": [
+        "结合运行年限评估绝缘老化程度，安排绝缘特性专项试验",
+        "开展油色谱与水分含量检测，跟踪产气速率",
+        "评估技改更换必要性并纳入中长期检修规划"
+      ],
+      "knowledgeQueries": [
+        "变压器绝缘老化评估方法",
+        "油色谱异常判据与处理要求",
+        "老旧变压器技改更换原则"
+      ],
+      "missingEvidence": [
+        "历次预防性试验趋势数据",
+        "油色谱与油质分析报告",
+        "设备运行年限与负载历史"
+      ]
+    },
+    {
+      "ruleId": "DIAG-LEDGER-INCOMPLETE",
+      "name": "台账关键信息缺失",
+      "dimension": "ledger",
+      "score": 0.40,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "missingFields",
+          "fields": ["model", "manufacturer", "commissioningDate", "deviceType"],
+          "op": ">=",
+          "value": 2
+        }
+      ],
+      "suggestions": [
+        "补齐设备型号、厂家、投运日期等关键台账字段",
+        "核对资产ID与资源ID对应关系，确保主键可追溯",
+        "对台账缺失设备开展现场核对并回填"
+      ],
+      "knowledgeQueries": [
+        "设备台账关键字段完整性要求",
+        "资产ID与资源ID对应关系维护要求",
+        "台账数据质量核查标准"
+      ],
+      "missingEvidence": [
+        "设备铭牌照片",
+        "出厂试验报告与合格证",
+        "资产台账与资源台账对应清单"
+      ]
+    },
+    {
+      "ruleId": "DIAG-TEST-GAP",
+      "name": "修试记录缺失或超期",
+      "dimension": "tests",
+      "score": 0.42,
+      "conditionsMode": "all",
+      "conditions": [
+        {
+          "type": "anyOf",
+          "conditions": [
+            {"type": "testCount", "op": "==", "value": 0},
+            {"type": "testStale", "staleDays": 1095}
+          ]
+        }
+      ],
+      "suggestions": [
+        "核实修试记录是否漏录，必要时从 PMS 重新取数",
+        "按预防性试验周期安排补做试验并归档报告",
+        "对超期未试设备纳入年度检修计划优先安排"
+      ],
+      "knowledgeQueries": [
+        "预防性试验周期与超期判定标准",
+        "修试记录归档要求",
+        "超期未试设备处理要求"
+      ],
+      "missingEvidence": [
+        "最近一次预防性试验报告",
+        "修试计划与实际执行记录",
+        "试验仪器校验证明"
+      ]
+    }
+  ]
+}

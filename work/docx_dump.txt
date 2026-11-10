@@ -1,0 +1,193 @@
+=== PARAGRAPHS ===
+[0][Heading 1] 变电专业智能问数：优先接入接口（26 个）功能说明
+[1][Normal] 编制背景：基于国网河南院电网资源业务中台（PMS）服务目录全量 333 个接口梳理，从中筛选出与「变电专业」智能问数高度相关的 26 个优先接入接口。本报告逐条说明每个接口的用途与可支撑的问数问题，并给出后续设计与使用建议。
+[2][Normal] 说明：所列为服务目录中的标准/说明性接口，实际调用需按平台规范向相关部门申请鉴权后，经中台网关接入。接口地址为相对路径，接入时需拼接网关完整地址。
+[3][Heading 2] 一、26 个接口一栏表
+[5][Heading 2] 二、各接口用途详解
+[6][Heading 3] 一、设备台账类（变电设备档案）
+[7][Normal] 1. 根据资产ID查看设备台账详情（pgp-102-2411-00102）
+[8][Normal] 接口地址：/assetCenter/queryServices/getAstById
+[9][Normal] 所属：电网资产中心 / 一次设备 / 电网资产通用服务
+[10][Normal] 【用途】以资产/设备台账ID为主键，查询单个设备的完整台账详情（铭牌参数、投运日期、厂家、电压等级、所属变电站等），是回答「设备是什么」的最基础入口。
+[11][List Bullet] 典型问数：这台主变是什么型号、容量多少、投运多久了？
+[12][Normal] 2. 查询设备资产参数列表（pgp-102-2411-00101）
+[13][Normal] 接口地址：/assetCenter/queryServices/{assetType}
+[14][Normal] 所属：电网资产中心 / 一次设备 / 电网资产通用服务
+[15][Normal] 【用途】按设备类型（如变压器、断路器、隔离开关等）查询该类设备的资产参数列表，可横向对比同类型设备的参数档位与配置。
+[16][List Bullet] 典型问数：全站主变的容量参数分别有哪些？
+[17][Normal] 3. 根据实物ID查看设备台账详情（pgp-102-2411-00103）
+[18][Normal] 接口地址：/assetCenter/queryServices/getDeviceByUTCNum
+[19][Normal] 所属：电网资产中心 / 一次设备 / 电网资产通用服务
+[20][Normal] 【用途】以实物ID（二维码/标签编码）定位设备并返回台账，适合移动端扫码盘点、对账场景。
+[21][List Bullet] 典型问数：扫这个实物ID对应的是哪台设备、台账如何？
+[22][Normal] 4.查询电网设备台账列表（pgp-101-2411-00102）
+[23][Normal] 接口地址：/PSRCenter/queryServices/listPropertiesByFilters
+[24][Normal] 所属：电网资源中心 / 一次设备 / 电网资源通用服务
+[25][Normal] 【用途】按条件（站、电压等级、设备类型、名称等）分页查询资源侧设备台账列表，是资源/图模视角的设备清单。
+[26][List Bullet] 典型问数：某220kV站共有多少台断路器、型号分布如何？
+[27][Normal] 5. 根据资源ID查看设备台账详情（pgp-101-2411-00103）
+[28][Normal] 接口地址：/PSRCenter/queryServices/getPsrById
+[29][Normal] 所属：电网资源中心 / 一次设备 / 电网资源通用服务
+[30][Normal] 【用途】以资源ID查看设备台账详情（资源侧视图，含拓扑/图形关联信息），与资产侧接口互补。
+[31][List Bullet] 典型问数：这个设备的资源台账和接线关系是什么？
+[33][Heading 3] 二、设备树/检索类（导航与定位）
+[34][Normal] 6. 查询设备树根节点（pgp-101-2411-00501）
+[35][Normal] 接口地址：/PSRCenter/commonTreeService/getDeviceTreeRoot
+[36][Normal] 所属：电网资源中心 / 综合检索 / 设备树搜索服务
+[37][Normal] 【用途】返回设备树的根节点（组织机构/区域/厂站层级起点），作为问数系统设备导航的入口。
+[38][List Bullet] 典型问数：全局设备树从哪里开始展开？
+[39][Normal] 7. 查询设备树下级节点（pgp-101-2411-00503）
+[40][Normal] 接口地址：/PSRCenter/commonTreeService/getDeviceTreeNodes
+[41][Normal] 所属：电网资源中心 / 综合检索 / 设备树搜索服务
+[42][Normal] 【用途】根据父节点获取下一级子树，用于「变电站→电压等级→设备→部件」逐层下钻导航。
+[43][List Bullet] 典型问数：进入某站后下面挂哪些一次设备？
+[45][Heading 3] 三、运维业务类（巡视/缺陷/隐患/故障）
+[46][Normal] 8. 查询缺陷记录（pgp-106-2411-00703）
+[47][Normal] 接口地址：/WMCenter/defect/inquireDefect
+[48][Normal] 所属：作业管理中心 / 缺陷管理 / 缺陷记录管理服务
+[49][Normal] 【用途】按条件查询变电设备缺陷记录列表（缺陷等级、发现时间、部位、状态、处理人），是「设备健康」类问数的核心接口。
+[50][List Bullet] 典型问数：某变电站当前有哪些严重、危急缺陷？
+[51][Normal] 9. 查看缺陷记录（pgp-106-2411-00704）
+[52][Normal] 接口地址：/WMCenter/defect/viewDefect
+[53][Normal] 所属：作业管理中心 / 缺陷管理 / 缺陷记录管理服务
+[54][Normal] 【用途】查看单条缺陷的完整明细，包括缺陷照片、处理过程、验收情况等。
+[55][List Bullet] 典型问数：这条缺陷的详细情况、处理到哪一步了？
+[56][Normal] 10. 查询隐患记录（pgp-106-2411-01003）
+[57][Normal] 接口地址：/WMCenter/hazard/listHazard
+[58][Normal] 所属：作业管理中心 / 隐患管理 / 隐患记录管理服务
+[59][Normal] 【用途】查询变电隐患记录（内外部隐患、风险等级、管控措施、整改状态），支撑隐患闭环治理问数。
+[60][List Bullet] 典型问数：变电站周边有哪些尚未闭环的隐患？
+[61][Normal] 11.查询故障记录（pgp-106-2411-02603）
+[62][Normal] 接口地址：/WMCenter/operation/faultTriprcdList
+[63][Normal] 所属：作业管理中心 / 故障管理 / 故障记录管理服务
+[64][Normal] 【用途】查询设备故障/跳闸记录列表（时间、设备、保护动作、原因分析），用于事故分析与复盘。
+[65][List Bullet] 典型问数：这台主变最近有没有跳闸/故障？原因是什么？
+[67][Heading 3] 四、检修试验类（计划/方案/修试/试验）
+[68][Normal] 12. 查询检修计划（pgp-106-2411-04206）
+[69][Normal] 接口地址：/WMCenter/repairManagement/getRepairPlan
+[70][Normal] 所属：作业管理中心 / 检修计划 / 检修计划管理服务
+[71][Normal] 【用途】查询变电设备检修计划（年度/月度项目、检修时间、停电安排），支撑「何时检修、是否在计划内」类问数。
+[72][List Bullet] 典型问数：这台设备本年度有没有检修计划？安排在什么时候？
+[73][Normal] 13.查询修试记录（pgp-106-2411-05003）
+[74][Normal] 接口地址：/WMCenter/examineRepair/findRepairTest
+[75][Normal] 所属：作业管理中心 / 检修作业 / 修试记录管理服务
+[76][Normal] 【用途】查询历次检修/试验（修试）记录，反映设备检修历史与试验数据变化趋势。
+[77][List Bullet] 典型问数：这台设备的历次修试历史与试验数据有哪些？
+[78][Normal] 14. 查询检修方案（pgp-106-2411-04803）
+[79][Normal] 接口地址：/WMCenter/examineRepair/findProgram
+[80][Normal] 所属：作业管理中心 / 检修作业 / 检修方案管理服务
+[81][Normal] 【用途】查询检修方案（作业内容、安全措施、人员安排），为检修前准备与方案查阅提供数据。
+[82][List Bullet] 典型问数：这次检修的方案和作业内容是什么？
+[83][Normal] 15. 查询巡视计划（工单）（pgp-106-2411-00303）
+[84][Normal] 接口地址：/WMCenter/patrol/planList
+[85][Normal] 所属：作业管理中心 / 巡视管理 / 巡视计划（工单）管理服务
+[86][Normal] 【用途】查询巡视计划/工单，了解变电站巡视任务安排（频次、覆盖设备、执行人）。
+[87][List Bullet] 典型问数：本季度该站的巡视计划/工单有哪些？
+[88][Normal] 16. 查询巡视记录（pgp-106-2411-00403）
+[89][Normal] 接口地址：/WMCenter/patrol/recordList
+[90][Normal] 所属：作业管理中心 / 巡视管理 / 巡视记录管理服务
+[91][Normal] 【用途】查询巡视记录与结果，可关联发现的异常/缺陷，支撑「是否按时按要求巡视」类问数。
+[92][List Bullet] 典型问数：该站最近一次巡视是什么时候、结果如何？
+[93][Normal] 17. 查询检测试验项目（pgp-106-2411-06801）
+[94][Normal] 接口地址：/WMCenter/test/testItemList
+[95][Normal] 所属：作业管理中心 / 作业标准管理 / 作业标准查询服务
+[96][Normal] 【用途】查询检测/试验项目清单及标准，明确各类设备应做的试验项目与要求。
+[97][List Bullet] 典型问数：变压器预防性试验要做哪些项目、依据什么标准？
+[99][Heading 3] 五、可靠性/运行分析类
+[100][Normal] 18. 统计变电站可靠性分析数据（pgp-108-2411-00405）
+[101][Normal] 接口地址：/analyCenter/reliabilityAnalyData/queryStationScaleAnalysis
+[102][Normal] 所属：电网分析中心 / 供电可靠性 / 可靠性分析结果服务
+[103][Normal] 【用途】按变电站维度统计供电可靠性指标（可用率、停电时户数等），是「电站运行可靠度」问数来源。
+[104][List Bullet] 典型问数：这个站的供电可靠率是多少？可靠性指标如何？
+[105][Normal] 19. 查询可靠性中压停电事件列表（pgp-108-2411-00502）
+[106][Normal] 接口地址：/analyCenter/reliabilityEvent/queryOutageIncidentInformation
+[107][Normal] 所属：电网分析中心 / 供电可靠性 / 可靠性运行数据服务
+[108][Normal] 【用途】查询中压停电事件列表（停电时间、范围、原因、恢复时间），支撑停电与供电质量问数。
+[109][List Bullet] 典型问数：最近有哪些停电事件？影响范围多大？
+[110][Normal] 20. 查询设备可开放容量（pgp-108-2411-00201）
+[111][Normal] 接口地址：/analyCenter/queryOpenCapacityData/find
+[112][Normal] 所属：电网分析中心 / 电网运行分析 / 可开放容量分析服务
+[113][Normal] 【用途】查询设备（主变/线路）可开放容量与当前负载，用于装接容量、新能源接入与运行裕度问数。
+[114][List Bullet] 典型问数：这台主变还有多少可开放容量？当前负载多大？
+[116][Heading 3] 六、作业资源/厂家信息类
+[117][Normal] 21. 查询智能装备台账信息（pgp-105-2411-00602）
+[118][Normal] 接口地址：/WRCenter/SmartDevice/findSmartDevice
+[119][Normal] 所属：作业资源中心 / 作业资源 / 智能装备管理服务
+[120][Normal] 【用途】查询智能装备（在线监测装置、机器人、无人机等）台账，支撑「站内有哪些智能装备、状态如何」问数。
+[121][List Bullet] 典型问数：站里有哪些在线监测/智能装备？在不在线？
+[122][Normal] 22. 查询仪器仪表台账信息（pgp-105-2411-00403）
+[123][Normal] 接口地址：/WRCenter/instruments/getInstrumentLIST
+[124][Normal] 所属：作业资源中心 / 作业资源 / 仪器仪表管理服务
+[125][Normal] 【用途】查询仪器仪表台账（试验仪器、表计），支撑试验资源清查与台账核对。
+[126][List Bullet] 典型问数：站内有哪些试验仪器仪表？检定情况如何？
+[127][Normal] 23. 查询生产厂家列表（pgp-102-2411-00701）
+[128][Normal] 接口地址：/baseCenter/devInfoService/manufacturerInfos
+[129][Normal] 所属：电网资产中心 / 厂家型号 / 生产厂家管理服务
+[130][Normal] 【用途】查询生产厂家信息列表，用于设备-厂家对应关系与厂家维度统计。
+[131][List Bullet] 典型问数：这批断路器是哪个厂家生产的？
+[133][Heading 3] 七、图形/拓扑类（图纸与供电拓扑）
+[134][Normal] 24. 根据设备ID获取专题图（pgp-103-2411-00502）
+[135][Normal] 接口地址：/geoCenter/thematicMapQueryServices/querySvgMapByPsrId
+[136][Normal] 所属：电网图形中心 / 专题图 / 专题图出图服务
+[137][Normal] 【用途】根据设备ID获取专题图（如变电站一次接线图、间隔图等SVG图），为问数提供可视化图元。
+[138][List Bullet] 典型问数：能调出这台设备的接线图/专题图吗？
+[139][Normal] 25. 查询电源点和供电路径（pgp-104-2411-00101）
+[140][Normal] 接口地址：/topoCenter/normalServices/searchPower
+[141][Normal] 所属：电网拓扑中心 / 电源分析 / 电源点分析服务
+[142][Normal] 【用途】查询某设备的电源点与供电路径（上级电源、供电链路），用于供电关系与失电风险问数。
+[143][List Bullet] 典型问数：这个站的电源从哪里来？供电路径是什么？
+[144][Normal] 26. 分析供电范围（pgp-104-2411-00301）
+[145][Normal] 接口地址：/topoCenter/normalServices/supplyArea
+[146][Normal] 所属：电网拓扑中心 / 停/供电分析 / 停/供电范围分析服务
+[147][Normal] 【用途】分析某设备停/送电后对下游的供电/停电影响范围，用于停电影响分析与风险预警。
+[148][List Bullet] 典型问数：这台设备停电会影响哪些用户/设备？
+[150][Heading 2] 三、后续如何进一步设计和使用
+[151][Heading 3] 3.1 接入与鉴权（第一步）
+[152][List Bullet] 通过服务目录检索到上述接口，下载各接口的《接口说明文档》，明确请求参数、响应字段与示例。
+[153][List Bullet] 向中台管理部门提交接入/鉴权申请，注明用途（变电智能问数）、调用频率、数据范围，获取调用凭证（appKey/appSecret 或 Token）。
+[154][List Bullet] 在测试环境完成联调、确认返回结构后切生产环境；注意接口频控/QPS 与数据脱敏要求。
+[155][Heading 3] 3.2 建议的数据建模与问数架构
+[156][List Bullet] 以「设备」为核心主键（资产ID/资源ID/实物ID）整合多源接口：台账、缺陷、巡视、检修、试验、量测围绕设备ID关联，形成设备画像。
+[157][List Bullet] 将 26 个接口抽象为统一问数数据服务层，对外输出结构化字段，避免问数系统直接依赖中台接口细节。
+[158][List Bullet] 按业务主题沉淀指标库（缺陷率、检修及时率、可靠性、可开放容量等），把接口字段映射为标准指标供自然语言问数引擎引用。
+[159][List Bullet] 为高频问数建立缓存以降低对实时接口的调用压力；实时量测类（遥测/遥信）单独对接，支撑「当前运行状态」类问题。
+[160][Heading 3] 3.3 典型问数场景 → 接口映射建议
+[161][Normal] 下表给出几个典型变电问数问题，以及可优先组合调用的接口。
+=== TABLES ===
+--- table 0 rows=27 cols=6
+接口编码 | 接口名称 | 接口地址 | 所属中心 | 能力域 | 版本
+pgp-102-2411-00102 | 根据资产ID查看设备台账详情 | /assetCenter/queryServices/getAstById | 电网资产中心 | 一次设备 | 电网资产通用服务
+pgp-102-2411-00101 | 查询设备资产参数列表 | /assetCenter/queryServices/{assetType} | 电网资产中心 | 一次设备 | 电网资产通用服务
+pgp-102-2411-00103 | 根据实物ID查看设备台账详情 | /assetCenter/queryServices/getDeviceByUTCNum | 电网资产中心 | 一次设备 | 电网资产通用服务
+pgp-101-2411-00102 | 查询电网设备台账列表 | /PSRCenter/queryServices/listPropertiesByFilters | 电网资源中心 | 一次设备 | 电网资源通用服务
+pgp-101-2411-00103 | 根据资源ID查看设备台账详情 | /PSRCenter/queryServices/getPsrById | 电网资源中心 | 一次设备 | 电网资源通用服务
+pgp-101-2411-00501 | 查询设备树根节点 | /PSRCenter/commonTreeService/getDeviceTreeRoot | 电网资源中心 | 综合检索 | 设备树搜索服务
+pgp-101-2411-00503 | 查询设备树下级节点 | /PSRCenter/commonTreeService/getDeviceTreeNodes | 电网资源中心 | 综合检索 | 设备树搜索服务
+pgp-106-2411-00703 | 查询缺陷记录 | /WMCenter/defect/inquireDefect | 作业管理中心 | 缺陷管理 | 缺陷记录管理服务
+pgp-106-2411-00704 | 查看缺陷记录 | /WMCenter/defect/viewDefect | 作业管理中心 | 缺陷管理 | 缺陷记录管理服务
+pgp-106-2411-01003 | 查询隐患记录 | /WMCenter/hazard/listHazard | 作业管理中心 | 隐患管理 | 隐患记录管理服务
+pgp-106-2411-02603 | 查询故障记录 | /WMCenter/operation/faultTriprcdList | 作业管理中心 | 故障管理 | 故障记录管理服务
+pgp-106-2411-04206 | 查询检修计划 | /WMCenter/repairManagement/getRepairPlan | 作业管理中心 | 检修计划 | 检修计划管理服务
+pgp-106-2411-05003 | 查询修试记录 | /WMCenter/examineRepair/findRepairTest | 作业管理中心 | 检修作业 | 修试记录管理服务
+pgp-106-2411-04803 | 查询检修方案 | /WMCenter/examineRepair/findProgram | 作业管理中心 | 检修作业 | 检修方案管理服务
+pgp-106-2411-00303 | 查询巡视计划（工单） | /WMCenter/patrol/planList | 作业管理中心 | 巡视管理 | 巡视计划（工单）管理服务
+pgp-106-2411-00403 | 查询巡视记录 | /WMCenter/patrol/recordList | 作业管理中心 | 巡视管理 | 巡视记录管理服务
+pgp-106-2411-06801 | 查询检测试验项目 | /WMCenter/test/testItemList | 作业管理中心 | 作业标准管理 | 作业标准查询服务
+pgp-108-2411-00405 | 统计变电站可靠性分析数据 | /analyCenter/reliabilityAnalyData/queryStationScaleAnalysis | 电网分析中心 | 供电可靠性 | 可靠性分析结果服务
+pgp-108-2411-00502 | 查询可靠性中压停电事件列表 | /analyCenter/reliabilityEvent/queryOutageIncidentInformation | 电网分析中心 | 供电可靠性 | 可靠性运行数据服务
+pgp-108-2411-00201 | 查询设备可开放容量 | /analyCenter/queryOpenCapacityData/find | 电网分析中心 | 电网运行分析 | 可开放容量分析服务
+pgp-105-2411-00602 | 查询智能装备台账信息 | /WRCenter/SmartDevice/findSmartDevice | 作业资源中心 | 作业资源 | 智能装备管理服务
+pgp-105-2411-00403 | 查询仪器仪表台账信息 | /WRCenter/instruments/getInstrumentLIST | 作业资源中心 | 作业资源 | 仪器仪表管理服务
+pgp-102-2411-00701 | 查询生产厂家列表 | /baseCenter/devInfoService/manufacturerInfos | 电网资产中心 | 厂家型号 | 生产厂家管理服务
+pgp-103-2411-00502 | 根据设备ID获取专题图 | /geoCenter/thematicMapQueryServices/querySvgMapByPsrId | 电网图形中心 | 专题图 | 专题图出图服务
+pgp-104-2411-00101 | 查询电源点和供电路径 | /topoCenter/normalServices/searchPower | 电网拓扑中心 | 电源分析 | 电源点分析服务
+pgp-104-2411-00301 | 分析供电范围 | /topoCenter/normalServices/supplyArea | 电网拓扑中心 | 停/供电分析 | 停/供电范围分析服务
+--- table 1 rows=8 cols=3
+用户问数（示例） | 核心接口 | 辅助接口/说明
+这台主变是什么型号、容量多大？ | getAstById / getPsrById（台账详情） | listPropertiesByFilters、devinfos（型号参数）
+某站目前有哪些严重缺陷？未闭环隐患有哪些？ | inquireDefect、listHazard | viewDefect（缺陷详情）
+这台设备最近检修过吗？试验数据怎么样？ | getRepairPlan、findRepairTest | findProgram、testItemList
+变电站可靠性指标如何？ | queryStationScaleAnalysis | queryOutageIncidentInformation
+这台主变还能带多少负荷？ | queryOpenCapacityData | 实时量测（当前负载）
+设备在哪、怎么定位、能看接线图吗？ | getDeviceTreeNodes | querySvgMapByPsrId（专题图）
+这台设备停电会影响哪些用户？ | supplyArea | searchPower（供电路径）

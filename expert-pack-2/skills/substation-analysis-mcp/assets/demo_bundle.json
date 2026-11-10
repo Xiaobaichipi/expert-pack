@@ -1,0 +1,149 @@
+{
+  "$comment": "演示用设备数据包：1 号主变（220kV），含套管渗油严重缺陷、跳闸故障、不合格试验、负载 70%；用于 analysis_cli.py demo 与测试。数据为演示数据，不对应真实设备。",
+  "device": {
+    "psrId": "PSR-220-0001",
+    "assetId": "AST-102-0001",
+    "utcNum": "UTC-2020-000123",
+    "name": "1号主变",
+    "stationId": "STA-220-01",
+    "stationName": "220kV 郑州变电站",
+    "voltageLevel": "220kV",
+    "deviceType": "变压器",
+    "model": "SSZ11-180000/220",
+    "manufacturer": "特变电工",
+    "commissioningDate": "2016-05-18",
+    "capacityMVA": 180,
+    "status": "运行"
+  },
+  "timeWindow": {"start": "2025-10-01", "end": "2026-09-30"},
+  "defects": [
+    {
+      "defectId": "DF-2026-0101",
+      "defectNo": "QXB-2026-0101",
+      "level": "严重",
+      "status": "处理中",
+      "discoverTime": "2026-08-20",
+      "part": "套管",
+      "desc": "套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹"
+    },
+    {
+      "defectId": "DF-2026-0102",
+      "defectNo": "QXB-2026-0102",
+      "level": "一般",
+      "status": "待处理",
+      "discoverTime": "2026-07-01",
+      "part": "套管",
+      "desc": "套管末屏接地电流测试值偏高，建议复测介损"
+    },
+    {
+      "defectId": "DF-2026-0103",
+      "defectNo": "QXB-2026-0103",
+      "level": "一般",
+      "status": "已消除",
+      "discoverTime": "2026-03-10",
+      "closeTime": "2026-03-25",
+      "part": "本体",
+      "desc": "本体轻微渗油，已处理并验收"
+    }
+  ],
+  "hazards": [
+    {
+      "hazardId": "HZ-2026-0001",
+      "type": "内部",
+      "riskLevel": "较大",
+      "status": "整改中",
+      "desc": "主变套管区消防通道被临时占用"
+    }
+  ],
+  "faults": [
+    {
+      "faultId": "FT-2026-0001",
+      "time": "2026-05-20 02:17",
+      "protectionAction": "差动保护动作",
+      "cause": "套管绝缘受潮",
+      "description": "1号主变差动保护动作跳闸，停电检查发现套管介损试验数据异常"
+    }
+  ],
+  "tests": [
+    {
+      "recordId": "RT-2026-0101",
+      "testType": "预防性试验",
+      "testDate": "2026-06-12",
+      "result": "不合格",
+      "dataSummary": "套管介损 0.92%（超标），电容量偏差 +6.8%，绝缘电阻 5200MΩ",
+      "items": [
+        {"name": "套管介损", "value": "0.92", "unit": "%", "conclusion": "不合格"},
+        {"name": "电容量偏差", "value": "+6.8", "unit": "%", "conclusion": "不合格"},
+        {"name": "绝缘电阻", "value": "5200", "unit": "MΩ", "conclusion": "不合格"}
+      ]
+    },
+    {
+      "recordId": "RT-2025-0088",
+      "testType": "预防性试验",
+      "testDate": "2025-04-11",
+      "result": "合格",
+      "dataSummary": "绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ"
+    }
+  ],
+  "repairPlans": [
+    {
+      "planId": "RP-2026-0001",
+      "planName": "1号主变套管检修",
+      "planTime": "2026-10-15 至 2026-10-18",
+      "status": "待执行",
+      "deviceName": "1号主变"
+    }
+  ],
+  "patrolRecords": [
+    {
+      "recordId": "PR-2026-0001",
+      "patrolTime": "2026-09-28 09:00-11:20",
+      "result": "发现异常 2 项",
+      "abnormalities": ["1号主变套管渗油", "套管末屏接地异常"]
+    }
+  ],
+  "load": {
+    "ratedCapacityMVA": 180,
+    "currentLoadMVA": 126,
+    "openCapacityMVA": 54,
+    "loadRate": 70.0
+  },
+  "reliability": {
+    "availabilityRate": 99.982,
+    "outageHours": 1.42,
+    "outageUserHours": 320.5,
+    "statPeriod": "2026-01 至 2026-09"
+  },
+  "sourceMeta": [
+    {
+      "interfaceCode": "pgp-102-2411-00102",
+      "tool": "get_asset_by_id",
+      "calledAt": "2026-09-30T10:00:00+08:00",
+      "params": {"assetId": "AST-102-0001"}
+    },
+    {
+      "interfaceCode": "pgp-106-2411-00703",
+      "tool": "inquire_defect",
+      "calledAt": "2026-09-30T10:00:05+08:00",
+      "params": {"deviceId": "AST-102-0001"}
+    },
+    {
+      "interfaceCode": "pgp-106-2411-02603",
+      "tool": "list_fault_trip_records",
+      "calledAt": "2026-09-30T10:00:08+08:00",
+      "params": {"deviceId": "AST-102-0001"}
+    },
+    {
+      "interfaceCode": "pgp-106-2411-05003",
+      "tool": "find_repair_test",
+      "calledAt": "2026-09-30T10:00:11+08:00",
+      "params": {"deviceId": "AST-102-0001"}
+    },
+    {
+      "interfaceCode": "pgp-108-2411-00201",
+      "tool": "query_open_capacity",
+      "calledAt": "2026-09-30T10:00:14+08:00",
+      "params": {"deviceId": "AST-102-0001"}
+    }
+  ]
+}

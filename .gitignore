@@ -1,0 +1,17 @@
+# 本地敏感文件
+.env
+*.local
+
+# 临时目录 / 编辑器 / 沙箱修复产物
+.tmp/
+.idea/
+.acl-recovery/
+
+# Python 缓存与测试残留
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.analysis_test_*/
+
+# 原包保留独立 Git 历史（不在根仓库内重复跟踪；如需统一管理可改为 submodule）
+expert-pack/

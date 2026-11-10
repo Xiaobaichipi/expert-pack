@@ -1,0 +1,230 @@
+{
+  "skill": "substation-qa-orchestrator",
+  "displayName": "问数总控",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "get_asset_by_id",
+      "params": {
+        "assetId": "AST-102-0001"
+      },
+      "note": "设备身份",
+      "response": {
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "assetType": "transformer",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "model": "SSZ11-180000/220",
+        "capacityMVA": 180,
+        "voltageRatio": "220/110/10.5kV",
+        "manufacturer": "特变电工",
+        "manufacturerId": "MF-001",
+        "commissioningDate": "2016-05-18",
+        "assetStatus": "在运",
+        "psrId": "PSR-220-0001",
+        "utcNum": "UTC-2020-000123",
+        "topoNodeId": "TOPO-220-0001",
+        "graphicId": "GEO-220-0001"
+      }
+    },
+    {
+      "tool": "list_psr_by_filters",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "站内资源",
+      "response": {
+        "list": [
+          {
+            "psrId": "PSR-220-0001",
+            "psrName": "1号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0001",
+            "topoNodeId": "TOPO-220-0001",
+            "graphicId": "GEO-220-0001"
+          },
+          {
+            "psrId": "PSR-220-0002",
+            "psrName": "2号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0002",
+            "topoNodeId": "TOPO-220-0002",
+            "graphicId": "GEO-220-0002"
+          }
+        ],
+        "total": 5,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": true
+      }
+    },
+    {
+      "tool": "get_device_tree_nodes",
+      "params": {
+        "parentId": "ROOT"
+      },
+      "note": "设备树",
+      "response": {
+        "list": [
+          {
+            "nodeId": "STA-500-00",
+            "nodeName": "500kV 嵩山变电站",
+            "nodeType": "STATION",
+            "voltageLevel": "500kV",
+            "hasChildren": false,
+            "childrenCount": 0,
+            "parentId": "ROOT",
+            "voltageLevelNodeIds": []
+          },
+          {
+            "nodeId": "STA-220-01",
+            "nodeName": "220kV 郑州变电站",
+            "nodeType": "STATION",
+            "voltageLevel": "220kV",
+            "hasChildren": true,
+            "childrenCount": 1,
+            "parentId": "ROOT",
+            "voltageLevelNodeIds": [
+              "STA-220-01#220kV"
+            ]
+          }
+        ],
+        "total": 4,
+        "pageNo": 1,
+        "pageSize": 50,
+        "listTruncated": true
+      }
+    },
+    {
+      "tool": "query_open_capacity",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "容量",
+      "response": {
+        "list": [
+          {
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "voltageLevel": "220kV",
+            "ratedCapacityMVA": 180,
+            "currentLoadMVA": 126,
+            "openCapacityMVA": 54,
+            "loadRate": 70.0
+          },
+          {
+            "deviceId": "AST-102-0002",
+            "psrId": "PSR-220-0002",
+            "deviceName": "2号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "voltageLevel": "220kV",
+            "ratedCapacityMVA": 180,
+            "currentLoadMVA": 98,
+            "openCapacityMVA": 82,
+            "loadRate": 54.4
+          }
+        ],
+        "total": 2,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "query_station_scale_analysis",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "可靠性",
+      "response": {
+        "list": [
+          {
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "statStartDate": "2026-01-01",
+            "statEndDate": "2026-09-30",
+            "statPeriod": "2026-01 至 2026-09",
+            "availabilityRate": 99.982,
+            "outageHours": 1.42,
+            "outageUserHours": 320.5,
+            "outageCount": 2
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "search_power_path",
+      "params": {
+        "psrId": "PSR-220-0001"
+      },
+      "note": "供电路径",
+      "response": {
+        "psrId": "PSR-220-0001",
+        "sourcePsrId": "PSR-500-0001",
+        "sourceName": "500kV 嵩山变电站",
+        "pathDescription": "500kV 嵩山变电站 → 220kV 郑州变电站 → 1号主变",
+        "pathNodes": [
+          {
+            "psrId": "PSR-500-0001",
+            "name": "500kV 嵩山变电站",
+            "nodeType": "SOURCE"
+          },
+          {
+            "psrId": "PSR-220-0000",
+            "name": "220kV 郑州变电站",
+            "nodeType": "STATION"
+          },
+          {
+            "psrId": "PSR-220-0001",
+            "name": "1号主变",
+            "nodeType": "DEVICE"
+          }
+        ]
+      }
+    },
+    {
+      "tool": "analyze_supply_area",
+      "params": {
+        "psrId": "PSR-220-0001",
+        "direction": "outage"
+      },
+      "note": "停电影响",
+      "response": {
+        "psrId": "PSR-220-0001",
+        "psrName": "1号主变",
+        "direction": "outage",
+        "affectedCount": 4,
+        "affectedStations": [
+          "110kV 二里岗变电站",
+          "110kV 城东变电站"
+        ],
+        "affectedUsers": [
+          "城北线台区 12 个",
+          "重要用户 2 户"
+        ],
+        "riskLevel": "较大"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "manifestVersion": "1",
+  "type": "skillset",
+  "slug": "bianya-intelligent-data-qa",
+  "displayName": "变电智能问数",
+  "summary": "面向变电专业的智能问数与深度分析专家包：覆盖设备台账、设备树导航、缺陷隐患故障、检修试验、可靠性分析、作业资源与图形拓扑，并内置设备健康度评分、跨域证据链诊断、重复/家族缺陷识别、站级健康画像与报告生成能力；内置 26 个电网资源业务中台（PMS）接口的 MCP/CLI 双轨调用底座与独立分析 MCP，鉴权可插拔（当前 Mock 模式），支持「数据 MCP + 分析 MCP + 知识库 MCP（WeKnora）」三层协同。",
+  "skillSlugs": [
+    "pms-gateway-mcp",
+    "substation-analysis-mcp",
+    "substation-asset-ledger",
+    "substation-device-tree",
+    "substation-om-health",
+    "substation-maintenance-test",
+    "substation-reliability",
+    "substation-resource-topology",
+    "substation-health-assessment",
+    "substation-diagnosis",
+    "substation-report",
+    "substation-qa-orchestrator"
+  ]
+}

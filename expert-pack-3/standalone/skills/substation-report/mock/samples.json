@@ -1,0 +1,248 @@
+{
+  "skill": "substation-report",
+  "displayName": "报告专家",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "get_asset_by_id",
+      "params": {
+        "assetId": "AST-102-0001"
+      },
+      "note": "设备身份",
+      "response": {
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "assetType": "transformer",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "model": "SSZ11-180000/220",
+        "capacityMVA": 180,
+        "voltageRatio": "220/110/10.5kV",
+        "manufacturer": "特变电工",
+        "manufacturerId": "MF-001",
+        "commissioningDate": "2016-05-18",
+        "assetStatus": "在运",
+        "psrId": "PSR-220-0001",
+        "utcNum": "UTC-2020-000123",
+        "topoNodeId": "TOPO-220-0001",
+        "graphicId": "GEO-220-0001"
+      }
+    },
+    {
+      "tool": "inquire_defect",
+      "params": {
+        "deviceId": "AST-102-0001"
+      },
+      "note": "缺陷",
+      "response": {
+        "list": [
+          {
+            "defectId": "DF-2026-0001",
+            "defectNo": "QXB-2026-0001",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "defectLevel": "严重",
+            "discoverTime": "2026-09-12 10:22",
+            "part": "本体/套管",
+            "status": "处理中",
+            "handler": "张工"
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "find_repair_test",
+      "params": {
+        "pageSize": 50
+      },
+      "note": "修试",
+      "response": {
+        "list": [
+          {
+            "recordId": "RT-2025-0001",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "testType": "预防性试验",
+            "testDate": "2025-04-11",
+            "result": "合格",
+            "tester": "赵工",
+            "dataSummary": "绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ"
+          },
+          {
+            "recordId": "RT-2026-0002",
+            "deviceId": "AST-103-0101",
+            "psrId": "PSR-220-0101",
+            "deviceName": "2201断路器",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "testType": "断路器机械特性试验",
+            "testDate": "2026-03-20",
+            "result": "合格",
+            "tester": "赵工",
+            "dataSummary": "分闸时间 32ms，合闸时间 78ms，同期差 2ms"
+          }
+        ],
+        "total": 3,
+        "pageNo": 1,
+        "pageSize": 50,
+        "listTruncated": true
+      }
+    },
+    {
+      "tool": "get_repair_plan",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "检修计划",
+      "response": {
+        "list": [
+          {
+            "planId": "RP-2026-0001",
+            "planName": "1号主变A类检修",
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "planStartDate": "2026-10-15",
+            "planEndDate": "2026-10-18",
+            "planTime": "2026-10-15 至 2026-10-18",
+            "outageArrangement": "主变停电，110kV 母线单母线运行",
+            "planType": "A类检修",
+            "status": "待执行"
+          },
+          {
+            "planId": "RP-2026-0002",
+            "planName": "2201断路器B类检修",
+            "deviceId": "AST-103-0101",
+            "psrId": "PSR-220-0101",
+            "deviceName": "2201断路器",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "planStartDate": "2026-11-05",
+            "planEndDate": "2026-11-06",
+            "planTime": "2026-11-05 至 2026-11-06",
+            "outageArrangement": "2201 断路器及两侧隔离开关停电",
+            "planType": "B类检修",
+            "status": "待执行"
+          }
+        ],
+        "total": 3,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": true
+      }
+    },
+    {
+      "tool": "list_patrol_record",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "巡视记录",
+      "response": {
+        "list": [
+          {
+            "recordId": "PR-2026-0001",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "patrolDate": "2026-09-28",
+            "patrolTime": "2026-09-28 09:00-11:20",
+            "patrolType": "例行巡视",
+            "executor": "运维一班",
+            "result": "发现异常 2 项",
+            "abnormalities": [
+              "1号主变套管渗油",
+              "2201断路器机构箱受潮"
+            ]
+          },
+          {
+            "recordId": "PR-2026-0003",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "patrolDate": "2026-08-20",
+            "patrolTime": "2026-08-20 09:00-10:40",
+            "patrolType": "例行巡视",
+            "executor": "运维一班",
+            "result": "发现异常 1 项",
+            "abnormalities": [
+              "2号主变冷却器风扇异响"
+            ]
+          }
+        ],
+        "total": 2,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "query_open_capacity",
+      "params": {
+        "deviceId": "AST-102-0001"
+      },
+      "note": "负载",
+      "response": {
+        "list": [
+          {
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "voltageLevel": "220kV",
+            "ratedCapacityMVA": 180,
+            "currentLoadMVA": 126,
+            "openCapacityMVA": 54,
+            "loadRate": 70.0
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "query_station_scale_analysis",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "可靠性",
+      "response": {
+        "list": [
+          {
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "statStartDate": "2026-01-01",
+            "statEndDate": "2026-09-30",
+            "statPeriod": "2026-01 至 2026-09",
+            "availabilityRate": 99.982,
+            "outageHours": 1.42,
+            "outageUserHours": 320.5,
+            "outageCount": 2
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    }
+  ]
+}

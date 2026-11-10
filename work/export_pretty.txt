@@ -1,0 +1,180 @@
+className:cn$2("relative cursor-pointer pb-[12px] text-[16px] font-medium leading-[24px] transition-colors duration-200",a===c.key?"text-[rgba(0,0,0,0.9)]":"text-[rgba(0,0,0,0.6)] hover:text-[rgba(0,0,0,0.9)]"),children:[c.label,a===c.key&&w.jsx("span",{
+className:"absolute bottom-[-1px] left-0 right-0 h-[3px] rounded-full bg-[rgba(0,0,0,0.9)]"}
+)]}
+,c.key))}
+)}
+)}
+function IncludedSkillGrid({
+data:a,skillDetails:s}
+){
+const c=Q.useMemo(()=>{
+const a=new Map;
+for(const c of s)a.set(skillKey(c.skill),c);
+return a}
+,[s]),u=Q.useMemo(()=>getSkillCoordinates(a),[a]);
+return w.jsxs("section",{
+children:[w.jsxs("div",{
+className:"mb-[16px] flex items-end justify-between gap-4",children:[w.jsxs("div",{
+children:[w.jsx("h2",{
+className:"text-[18px] font-medium leading-[28px] text-[rgba(0,0,0,0.9)]",children:"åå«ç Skill"}
+),w.jsx("p",{
+className:"mt-[4px] text-[13px] leading-[20px] text-[rgba(0,0,0,0.45)]",children:"ç¹å»ä»»ä¸æ¨¡åï¼æ¥çåä¸ª Skill è¯¦æã"}
+)]}
+),w.jsxs("span",{
+className:"shrink-0 text-[12px] leading-[20px] text-[rgba(0,0,0,0.35)]",children:[u.length," ä¸ª"]}
+)]}
+),w.jsx("div",{
+className:"grid gap-3 md:grid-cols-2",children:u.map(a=>{
+const s=(a=>{
+const s=a.namespace?`@${
+a.namespace}
+/${
+a.slug}
+`:a.slug;
+return c.get(s)}
+)(a),u=s?.skill?.displayName||a.slug,p=s?.skill?.summary_zh?.trim()||s?.skill?.summary?.trim()||"ææ æè¿°",h=a.namespace?{
+handle:a.namespace}
+:null;
+return w.jsxs(We,{
+href:buildSkillDetailHref({
+slug:a.slug,namespace:h}
+),"dt-eid":"pkgdetail-skill-link","dt-remark":`skill=${
+a.namespace??""}
+/${
+a.slug}
+`,className:cn$2("group flex min-h-[112px] w-full items-start gap-3 overflow-hidden rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-white p-4 text-left","no-underline transition-all duration-200 hover:border-[rgba(0,0,0,0.16)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"),children:[w.jsx("span",{
+className:"mt-[2px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[rgba(0,0,0,0.04)]",children:w.jsx(SkillPuzzleIcon,{
+}
+)}
+),w.jsxs("span",{
+className:"min-w-0 flex-1",children:[w.jsx("span",{
+className:"block truncate text-[14px] font-medium leading-[22px] text-[rgba(0,0,0,0.9)]",children:u}
+),w.jsx("span",{
+className:"mt-[2px] line-clamp-3 text-[12px] leading-[18px] text-[rgba(0,0,0,0.45)] [word-break:break-word]",title:p,children:p}
+)]}
+),w.jsx("span",{
+className:"mt-[2px] shrink-0 text-[12px] font-medium leading-[20px] text-[rgba(0,0,0,0.3)] transition-colors group-hover:text-[rgba(0,0,0,0.7)]",children:"æ¥ç"}
+)]}
+,`${
+a.namespace??""}
+/${
+a.slug}
+`)}
+)}
+)]}
+)}
+function SkillPackageOverview({
+identityMarkdown:a}
+){
+return w.jsx("div",{
+className:"markdown-body",children:w.jsx(Markdown,{
+remarkPlugins:[remarkGfm],rehypePlugins:[rehypeSanitize],children:a}
+)}
+)}
+function SkillPackageDownloadButton({
+data:a}
+){
+const[s,c]=Q.useState(!1),handleDownload=async()=>{
+if(!s){
+c(!0);
+try{
+await async function downloadSkillPackageZip(a){
+const s=new pv,c=a.content?.trim()||getIdentityMarkdown(a),u=getSkillCoordinates(a);
+s.file("manifest.json",JSON.stringify({
+type:"skillhub-expert-package",slug:a.slug,displayName:a.displayName,summary:a.summary,skillSlugs:a.skillSlugs,skills:u}
+,null,2)),s.file(`skillsets/${
+a.slug}
+.md`,c);
+for(const p of u){
+const a=getDownloadCoordinate({
+slug:p.slug,namespace:p.namespace?{
+handle:p.namespace,displayName:p.namespace,publicSlug:p.slug,canonicalName:`@${
+p.namespace}
+/${
+p.slug}
+`}
+:null}
+),c=await fetch(getSkillDownloadUrl(a),{
+redirect:"follow"}
+);
+if(!c.ok)throw new Error(`ä¸è½½ ${
+p.slug}
+ å¤±è´¥: ${
+c.status}
+`);
+const u=await c.blob();
+s.file(`skills/${
+p.slug}
+.zip`,u)}
+triggerBrowserDownload(await s.generateAsync({
+type:"blob"}
+),`${
+a.slug}
+.zip`)}
+(a)}
+catch(u){
+console.error("ä¸è½½ä¸å®¶å Zip å¤±è´¥:",u),ot.error("ä¸è½½å¤±è´¥ï¼è¯·ç¨åéè¯")}
+finally{
+c(!1)}
+}
+}
+;
+return w.jsxs("button",{
+type:"button","dt-eid":"pkgdetail-zip-download-btn","dt-remark":`pkg=${
+a.slug}
+`,onClick:()=>{
+handleDownload()}
+,disabled:s,className:cn$2("mt-[24px] flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[8px]","border border-[rgba(0,0,0,0.08)] bg-white text-[14px] text-[rgba(0,0,0,0.9)]","transition-colors duration-200 hover:bg-[#f5f5f5] disabled:cursor-not-allowed disabled:opacity-60"),children:[w.jsx(Pa,{
+className:"h-[16px] w-[16px]",strokeWidth:2}
+),s?"ä¸è½½ä¸­...":"ä¸è½½ Zip åå®è£"]}
+)}
+function SkillPackageInstallSidebar({
+data:a}
+){
+return w.jsxs("aside",{
+className:"flex flex-col",children:[w.jsx(SkillPackageAiInstallCard,{
+data:a}
+),w.jsx(SkillPackageDownloadButton,{
+data:a}
+)]}
+)}
+function SkillPackageDetailPage({
+slug:a,parentName:s="Hermes",backHref:c="/hermes"}
+){
+const u=useIsMobile(),{
+data:p,loading:h,error:m,retry:k}
+=function useSkillSetDetail(a){
+const[s,c]=Q.useState(null),[u,p]=Q.useState(!1),[h,m]=Q.useState(null),w=Q.useRef(!1),k=Q.useCallback(()=>{
+if(!a)return p(!1),void m("ç¼ºå° slug åæ°");
+w.current=!1,c(null),p(!0),m(null),fetchSkillSetDetail(a).then(a=>{
+w.current||c(a)}
+).catch(a=>{
+w.current||m(a?.message||"è·å SkillSet è¯¦æå¤±è´¥")}
+).finally(()=>{
+w.current||p(!1)}
+)}
+,[a]);
+return Q.useEffect(()=>(k(),()=>{
+w.current=!0}
+),[k]),{
+data:s,loading:u,error:h,retry:k}
+}
+(a),[N,E]=Q.useState(getInitialDetailTab);
+Q.useEffect(()=>{
+window.scrollTo(0,0)}
+,[]);
+const T=Q.useCallback(a=>{
+E(a),function syncDetailTabToUrl(a){
+if("undefined"==typeof window)return;
+const s=new URL(window.location.href);
+"skills"===a?s.searchParams.set("tab","skills"):s.searchParams.delete("tab");
+const c=`${
+s.pathname}
+${
+s.search}
+${
+s.hash}
+`;
+window.history.replaceState(window.history.state,"",c)}
+(a)}
+,[]),O=Q.useMemo(()=>p?getSkillC

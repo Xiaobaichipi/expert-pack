@@ -1,0 +1,88 @@
+{
+  "specVersion": "1.0.0",
+  "server": "substation-analysis-mcp",
+  "displayName": "变电分析引擎（健康度/诊断/报告）",
+  "note": "v2 P0 分析层契约。分析引擎只做确定性计算（评分/规则/统计/模板渲染），不做取数、不调用知识库；输入为数据 MCP 结果组装的数据包（bundle），输出带证据链、置信度与知识检索建议。",
+  "inputContract": "spec/analysis-bundle.schema.json",
+  "tools": [
+    {
+      "name": "assess_device_health",
+      "title": "设备健康度评分",
+      "desc": "对单台设备按评分卡计算健康度分数、等级、各维度得分与扣分证据，并给出数据完备度与置信度。",
+      "params": [
+        {"name": "bundle", "type": "object", "required": true, "desc": "设备数据包，字段见 analysis-bundle.schema.json"},
+        {"name": "scorecard_profile", "type": "string", "required": false, "default": "default", "desc": "评分卡档位，默认 default"}
+      ],
+      "returns": "score(0-100) / grade(A-E) / gradeLabel / risk / dimensions[] / deductions[] / completeness / confidence / summary / knowledgeQueries[]"
+    },
+    {
+      "name": "assess_station_health",
+      "title": "站级健康画像",
+      "desc": "对同一变电站多台设备批量评分，输出站级均值、等级分布、风险设备 TopN 与站级风险结论。",
+      "params": [
+        {"name": "bundles", "type": "array", "required": true, "desc": "设备数据包数组（同一站）"},
+        {"name": "station_meta", "type": "object", "required": false, "desc": "站元数据：stationId/stationName/voltageLevel"},
+        {"name": "scorecard_profile", "type": "string", "required": false, "default": "default"},
+        {"name": "top_n", "type": "integer", "required": false, "default": 5}
+      ],
+      "returns": "station / devices[] / aggregate{avgScore,gradeDistribution,riskTop,criticalCount} / knowledgeQueries[]"
+    },
+    {
+      "name": "diagnose_equipment",
+      "title": "跨域证据链诊断",
+      "desc": "基于缺陷/故障/试验/修试/负载等跨域证据，按规则库给出根因假设排序、证据链、缺失证据与下一步核查建议。",
+      "params": [
+        {"name": "bundle", "type": "object", "required": true, "desc": "设备数据包"},
+        {"name": "max_hypotheses", "type": "integer", "required": false, "default": 5}
+      ],
+      "returns": "hypotheses[{ruleId,name,score,confidence,evidence[],suggestions[],knowledgeQueries[]}] / patterns / missingEvidence[] / dataGaps[]"
+    },
+    {
+      "name": "detect_defect_patterns",
+      "title": "重复/家族缺陷识别",
+      "desc": "对缺陷记录做聚类：同部位重复缺陷、同型号同厂家家族性缺陷、同批次/同期投运设备共性问题。",
+      "params": [
+        {"name": "defects", "type": "array", "required": true, "desc": "缺陷记录数组（至少含 level/status/discoverTime/part）"},
+        {"name": "device_meta", "type": "object", "required": false, "desc": "设备元数据：model/manufacturer/commissioningDate/deviceType"},
+        {"name": "window_days", "type": "integer", "required": false, "default": 365},
+        {"name": "family_min_count", "type": "integer", "required": false, "default": 3}
+      ],
+      "returns": "duplicateClusters[] / familyClusters[] / summary"
+    },
+    {
+      "name": "compute_device_metrics",
+      "title": "派生指标计算",
+      "desc": "由设备数据包计算派生指标：缺陷率、危急未闭环、超期未消缺、检修计划完成率、修试完成率、负载率、可开放容量比、可用率等。",
+      "params": [
+        {"name": "bundle", "type": "object", "required": true, "desc": "设备数据包"}
+      ],
+      "returns": "metrics{} / denominators{} / dataGaps[]"
+    },
+    {
+      "name": "generate_report",
+      "title": "报告生成",
+      "desc": "把分析结果按模板渲染为 Markdown 报告；支持设备画像、站级月报、故障复盘三类模板，可附加知识库引用。",
+      "params": [
+        {"name": "report_type", "type": "string", "required": true, "enum": ["device_profile", "station_monthly", "fault_review"], "desc": "报告模板类型"},
+        {"name": "payload", "type": "object", "required": true, "desc": "分析结果负载（健康度/诊断/指标/清单等）"},
+        {"name": "citations", "type": "array", "required": false, "desc": "知识库引用：[{title, source, snippet, kbId}]"},
+        {"name": "title", "type": "string", "required": false, "desc": "自定义标题"}
+      ],
+      "returns": "reportType / title / markdown / sections[] / generatedAt"
+    },
+    {
+      "name": "list_report_types",
+      "title": "报告模板清单",
+      "desc": "列出可用报告模板及所需字段，供编排层选择。",
+      "params": [],
+      "returns": "reportTypes[{type,name,requiredPayloadKeys[]}]"
+    }
+  ],
+  "designRules": [
+    "LLM 不做计算：评分、统计、阈值判断、聚类、模板渲染全部在 Python 中完成。",
+    "每条扣分/每个假设必须带 evidence（规则ID、依据数据、接口来源）与 confidence。",
+    "知识库只出检索建议（knowledgeQueries），由 Agent 调 WeKnora MCP 取回条款，再作为 citations 传入 generate_report。",
+    "数据缺口必须显式输出（dataGaps/missingEvidence），不得用推测值补齐。",
+    "分析引擎不访问网络、不读取凭证，纯函数式：同一输入必得同一输出。"
+  ]
+}

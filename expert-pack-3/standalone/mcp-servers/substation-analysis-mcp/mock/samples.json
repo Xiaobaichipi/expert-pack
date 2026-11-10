@@ -1,0 +1,663 @@
+{
+  "skill": "substation-analysis-mcp",
+  "displayName": "变电分析引擎（健康度/诊断/报告）",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "mcp",
+  "demoBundle": "assets/demo_bundle.json",
+  "cliExamples": [
+    "python scripts/analysis_cli.py demo",
+    "python scripts/analysis_cli.py health --bundle assets/demo_bundle.json",
+    "python scripts/analysis_cli.py report --type device_profile --bundle assets/demo_bundle.json"
+  ],
+  "results": {
+    "health": {
+      "score": 75.8,
+      "grade": "C",
+      "gradeLabel": "注意",
+      "risk": "中",
+      "dimensions": [
+        {
+          "id": "defects",
+          "name": "缺陷",
+          "weight": 0.3,
+          "base": 100,
+          "deduction": 40,
+          "score": 60,
+          "evidenceCount": 4
+        },
+        {
+          "id": "faults",
+          "name": "故障",
+          "weight": 0.25,
+          "base": 100,
+          "deduction": 25,
+          "score": 75,
+          "evidenceCount": 1
+        },
+        {
+          "id": "tests",
+          "name": "修试",
+          "weight": 0.2,
+          "base": 100,
+          "deduction": 30,
+          "score": 70,
+          "evidenceCount": 1
+        },
+        {
+          "id": "load",
+          "name": "负载",
+          "weight": 0.15,
+          "base": 100,
+          "deduction": 0,
+          "score": 100,
+          "evidenceCount": 0
+        },
+        {
+          "id": "ledger",
+          "name": "台账",
+          "weight": 0.1,
+          "base": 100,
+          "deduction": 0,
+          "score": 100,
+          "evidenceCount": 0
+        }
+      ],
+      "deductions": [
+        {
+          "ruleId": "DEF-SERIOUSOPEN",
+          "dimension": "defects",
+          "delta": -15,
+          "reason": "严重缺陷未闭环：套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹（DF-2026-0101）",
+          "source": [
+            "pgp-106-2411-00703"
+          ],
+          "data": {
+            "defectId": "DF-2026-0101",
+            "level": "严重",
+            "status": "处理中",
+            "discoverTime": "2026-08-20",
+            "part": "套管"
+          }
+        },
+        {
+          "ruleId": "DEF-OVERDUE",
+          "dimension": "defects",
+          "delta": -10,
+          "reason": "严重缺陷超期未消缺 41 天（限值 7 天）：套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹（DF-2026-0101）",
+          "source": [
+            "pgp-106-2411-00703"
+          ],
+          "data": {
+            "defectId": "DF-2026-0101",
+            "level": "严重",
+            "status": "处理中",
+            "discoverTime": "2026-08-20",
+            "part": "套管",
+            "openDays": 41,
+            "overdueLimitDays": 7
+          }
+        },
+        {
+          "ruleId": "DEF-NORMALOPEN",
+          "dimension": "defects",
+          "delta": -5,
+          "reason": "一般缺陷未闭环：套管末屏接地电流测试值偏高，建议复测介损（DF-2026-0102）",
+          "source": [
+            "pgp-106-2411-00703"
+          ],
+          "data": {
+            "defectId": "DF-2026-0102",
+            "level": "一般",
+            "status": "待处理",
+            "discoverTime": "2026-07-01",
+            "part": "套管"
+          }
+        },
+        {
+          "ruleId": "DEF-OVERDUE",
+          "dimension": "defects",
+          "delta": -10,
+          "reason": "一般缺陷超期未消缺 91 天（限值 30 天）：套管末屏接地电流测试值偏高，建议复测介损（DF-2026-0102）",
+          "source": [
+            "pgp-106-2411-00703"
+          ],
+          "data": {
+            "defectId": "DF-2026-0102",
+            "level": "一般",
+            "status": "待处理",
+            "discoverTime": "2026-07-01",
+            "part": "套管",
+            "openDays": 91,
+            "overdueLimitDays": 30
+          }
+        },
+        {
+          "ruleId": "FAULT-RECENT",
+          "dimension": "faults",
+          "delta": -25,
+          "reason": "近 12 个月故障跳闸：套管绝缘受潮（FT-2026-0001）",
+          "source": [
+            "pgp-106-2411-02603"
+          ],
+          "data": {
+            "faultId": "FT-2026-0001",
+            "time": "2026-05-20 02:17",
+            "protectionAction": "差动保护动作",
+            "daysAgo": 133
+          }
+        },
+        {
+          "ruleId": "TEST-UNQUALIFIED",
+          "dimension": "tests",
+          "delta": -30,
+          "reason": "试验结果不合格：预防性试验 2026-06-12（RT-2026-0101）",
+          "source": [
+            "pgp-106-2411-05003"
+          ],
+          "data": {
+            "recordId": "RT-2026-0101",
+            "testType": "预防性试验",
+            "testDate": "2026-06-12",
+            "result": "不合格",
+            "dataSummary": "套管介损 0.92%（超标），电容量偏差 +6.8%，绝缘电阻 5200MΩ"
+          }
+        }
+      ],
+      "completeness": {
+        "present": 4,
+        "total": 4,
+        "missing": [],
+        "ratio": 1.0
+      },
+      "confidence": 0.9,
+      "summary": "1号主变 健康度 75.8 分（C·注意，风险中）；数据完备度 4/4，置信度 0.9；主要扣分：严重缺陷未闭环：套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹（DF-2026-…；严重缺陷超期未消缺 41 天（限值 7 天）：套管法兰渗油，油迹明显，末屏接地引…；一般缺陷未闭环：套管末屏接地电流测试值偏高，建议复测介损（DF-2026-010…",
+      "knowledgeQueries": [
+        "危急缺陷定级标准与消缺时限要求",
+        "严重缺陷超期未消缺的考核与处理要求",
+        "变压器套管渗油缺陷定级及处理工艺",
+        "故障跳闸记录统计与重复跳闸判定口径",
+        "差动保护动作原因分析要点",
+        "变压器跳闸后试验复测要求",
+        "预防性试验周期与超期判定标准",
+        "变压器预防性试验不合格处理要求",
+        "套管介损与电容量试验合格判据"
+      ],
+      "dataGaps": [],
+      "asOf": "2026-09-30"
+    },
+    "diagnosis": {
+      "hypotheses": [
+        {
+          "ruleId": "DIAG-BUSHING-MOISTURE",
+          "name": "套管受潮/绝缘劣化",
+          "dimension": "tests",
+          "score": 0.88,
+          "confidence": 0.95,
+          "evidenceCount": 8,
+          "evidence": [
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管、末屏」：DF-2026-0101 QXB-2026-0101 严重 处理中 2026-08-20 套管 套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹",
+              "source": [
+                "pgp-106-2411-00703"
+              ],
+              "data": {
+                "scope": "defects",
+                "recordId": "DF-2026-0101",
+                "keywords": [
+                  "套管",
+                  "末屏",
+                  "受潮",
+                  "渗油"
+                ],
+                "text": "DF-2026-0101 QXB-2026-0101 严重 处理中 2026-08-20 套管 套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管、末屏」：DF-2026-0102 QXB-2026-0102 一般 待处理 2026-07-01 套管 套管末屏接地电流测试值偏高，建议复测介损",
+              "source": [
+                "pgp-106-2411-00703"
+              ],
+              "data": {
+                "scope": "defects",
+                "recordId": "DF-2026-0102",
+                "keywords": [
+                  "套管",
+                  "末屏",
+                  "介损"
+                ],
+                "text": "DF-2026-0102 QXB-2026-0102 一般 待处理 2026-07-01 套管 套管末屏接地电流测试值偏高，建议复测介损"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管」：HZ-2026-0001 内部 较大 整改中 主变套管区消防通道被临时占用",
+              "source": [
+                "pgp-106-2411-01003"
+              ],
+              "data": {
+                "scope": "hazards",
+                "recordId": "HZ-2026-0001",
+                "keywords": [
+                  "套管"
+                ],
+                "text": "HZ-2026-0001 内部 较大 整改中 主变套管区消防通道被临时占用"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管」：FT-2026-0001 2026-05-20 02:17 差动保护动作 套管绝缘受潮 1号主变差动保护动作跳闸，停电检查发现套管介损试验数据异常",
+              "source": [
+                "pgp-106-2411-02603"
+              ],
+              "data": {
+                "scope": "faults",
+                "recordId": "FT-2026-0001",
+                "keywords": [
+                  "套管",
+                  "介损",
+                  "受潮"
+                ],
+                "text": "FT-2026-0001 2026-05-20 02:17 差动保护动作 套管绝缘受潮 1号主变差动保护动作跳闸，停电检查发现套管介损试验数据异常"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管」：RT-2026-0101 预防性试验 2026-06-12 不合格 套管介损 0.92%（超标），电容量偏差 +6.8%，绝缘电阻 5200MΩ 套管介损 0.…",
+              "source": [
+                "pgp-106-2411-05003"
+              ],
+              "data": {
+                "scope": "tests",
+                "recordId": "RT-2026-0101",
+                "keywords": [
+                  "套管",
+                  "介损",
+                  "电容量",
+                  "绝缘电阻"
+                ],
+                "text": "RT-2026-0101 预防性试验 2026-06-12 不合格 套管介损 0.92%（超标），电容量偏差 +6.8%，绝缘电阻 5200MΩ 套管介损 0.92 % 不合格 电容量偏差 +6.8 % 不合格 绝缘电阻 5200 MΩ 不合格"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「套管、末屏」：PR-2026-0001 2026-09-28 09:00-11:20 发现异常 2 项 1号主变套管渗油 套管末屏接地异常",
+              "source": [
+                "pgp-106-2411-00403"
+              ],
+              "data": {
+                "scope": "patrolRecords",
+                "recordId": "PR-2026-0001",
+                "keywords": [
+                  "套管",
+                  "末屏",
+                  "渗油"
+                ],
+                "text": "PR-2026-0001 2026-09-28 09:00-11:20 发现异常 2 项 1号主变套管渗油 套管末屏接地异常"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「绝缘电阻」：RT-2025-0088 预防性试验 2025-04-11 合格 绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ",
+              "source": [
+                "pgp-106-2411-05003"
+              ],
+              "data": {
+                "scope": "tests",
+                "recordId": "RT-2025-0088",
+                "keywords": [
+                  "绝缘电阻"
+                ],
+                "text": "RT-2025-0088 预防性试验 2025-04-11 合格 绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ"
+              }
+            },
+            {
+              "ruleId": "DIAG-BUSHING-MOISTURE",
+              "dimension": "tests",
+              "reason": "命中关键词「渗油」：DF-2026-0103 QXB-2026-0103 一般 已消除 2026-03-10 2026-03-25 本体 本体轻微渗油，已处理并验收",
+              "source": [
+                "pgp-106-2411-00703"
+              ],
+              "data": {
+                "scope": "defects",
+                "recordId": "DF-2026-0103",
+                "keywords": [
+                  "渗油"
+                ],
+                "text": "DF-2026-0103 QXB-2026-0103 一般 已消除 2026-03-10 2026-03-25 本体 本体轻微渗油，已处理并验收"
+              }
+            }
+          ],
+          "suggestions": [
+            "复核套管介损、电容量与绝缘电阻试验原始数据，确认是否超标",
+            "检查套管末屏接地引线与密封状况，安排停电取油样做色谱分析",
+            "结合检修计划更换受潮套管或进行干燥处理，处理后复测介损"
+          ],
+          "knowledgeQueries": [
+            "套管介损超标判定标准",
+            "变压器套管渗油缺陷定级与处理要求",
+            "套管末屏接地异常处理工艺"
+          ],
+          "missingEvidence": [
+            "套管预防性试验（介损/电容量/绝缘电阻）原始值",
+            "套管红外测温记录",
+            "套管油色谱分析报告"
+          ]
+        },
+        {
+          "ruleId": "DIAG-REPEAT-DEFECT",
+          "name": "重复性缺陷",
+          "dimension": "defects",
+          "score": 0.55,
+          "confidence": 0.65,
+          "evidenceCount": 1,
+          "evidence": [
+            {
+              "ruleId": "DIAG-REPEAT-DEFECT",
+              "dimension": "defects",
+              "reason": "重复缺陷簇 DUP-1：部位「套管」窗口内 2 次",
+              "source": [
+                "pgp-106-2411-00703"
+              ],
+              "data": {
+                "clusterId": "DUP-1",
+                "part": "套管",
+                "count": 2,
+                "defectIds": [
+                  "DF-2026-0101",
+                  "DF-2026-0102"
+                ],
+                "firstTime": "2026-07-01",
+                "lastTime": "2026-08-20"
+              }
+            }
+          ],
+          "suggestions": [
+            "对同部位反复出现的缺陷开展根因分析，避免重复消缺",
+            "核查历次消缺工艺与备件质量，必要时更换部件",
+            "将该部位纳入重点监视并缩短巡视周期"
+          ],
+          "knowledgeQueries": [
+            "重复缺陷认定与考核口径",
+            "设备同部位重复缺陷处理要求",
+            "消缺质量验收标准"
+          ],
+          "missingEvidence": [
+            "同部位历次消缺处理记录与验收结论",
+            "备品备件批次与质量证明",
+            "缺陷复现时间间隔统计"
+          ]
+        },
+        {
+          "ruleId": "DIAG-PROTECTION-MISOP",
+          "name": "保护动作/误动核查",
+          "dimension": "faults",
+          "score": 0.45,
+          "confidence": 0.75,
+          "evidenceCount": 2,
+          "evidence": [
+            {
+              "ruleId": "DIAG-PROTECTION-MISOP",
+              "dimension": "faults",
+              "reason": "保护动作记录：差动保护动作",
+              "source": [
+                "pgp-106-2411-02603"
+              ],
+              "data": {
+                "faultId": "FT-2026-0001",
+                "time": "2026-05-20 02:17",
+                "protectionAction": "差动保护动作"
+              }
+            },
+            {
+              "ruleId": "DIAG-PROTECTION-MISOP",
+              "dimension": "faults",
+              "reason": "试验结果不合格：套管介损 0.92%（超标），电容量偏差 +6.8%，绝缘电阻 5200MΩ",
+              "source": [
+                "pgp-106-2411-05003"
+              ],
+              "data": {
+                "recordId": "RT-2026-0101",
+                "testType": "预防性试验",
+                "testDate": "2026-06-12",
+                "result": "不合格"
+              }
+            }
+          ],
+          "suggestions": [
+            "调取保护动作报告与故障录波，核对保护定值与动作逻辑",
+            "结合试验异常数据判断是否存在保护误动或二次回路问题",
+            "必要时开展保护装置校验与整组传动试验"
+          ],
+          "knowledgeQueries": [
+            "差动保护动作原因分析要点",
+            "保护误动判定与处理流程",
+            "继电保护装置校验周期要求"
+          ],
+          "missingEvidence": [
+            "保护动作报告与故障录波文件",
+            "保护定值单与装置校验报告",
+            "二次回路绝缘与端子检查记录"
+          ]
+        }
+      ],
+      "patterns": {
+        "duplicateClusters": [
+          {
+            "part": "套管",
+            "deviceName": "1号主变",
+            "count": 2,
+            "defectIds": [
+              "DF-2026-0101",
+              "DF-2026-0102"
+            ],
+            "levels": {
+              "严重": 1,
+              "一般": 1
+            },
+            "statuses": {
+              "处理中": 1,
+              "待处理": 1
+            },
+            "firstTime": "2026-07-01",
+            "lastTime": "2026-08-20",
+            "defects": [
+              {
+                "defectId": "DF-2026-0101",
+                "level": "严重",
+                "status": "处理中",
+                "discoverTime": "2026-08-20",
+                "part": "套管",
+                "deviceName": "1号主变",
+                "desc": "套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹"
+              },
+              {
+                "defectId": "DF-2026-0102",
+                "level": "一般",
+                "status": "待处理",
+                "discoverTime": "2026-07-01",
+                "part": "套管",
+                "deviceName": "1号主变",
+                "desc": "套管末屏接地电流测试值偏高，建议复测介损"
+              }
+            ],
+            "clusterId": "DUP-1"
+          }
+        ],
+        "familyClusters": [],
+        "summary": {
+          "defectCount": 3,
+          "evaluatedCount": 3,
+          "windowDays": 365,
+          "familyMinCount": 3,
+          "asOf": "2026-09-30",
+          "duplicateClusterCount": 1,
+          "familyClusterCount": 0,
+          "dataGaps": []
+        },
+        "dataGaps": []
+      },
+      "missingEvidence": [
+        "套管预防性试验（介损/电容量/绝缘电阻）原始值",
+        "套管红外测温记录",
+        "套管油色谱分析报告",
+        "同部位历次消缺处理记录与验收结论",
+        "备品备件批次与质量证明",
+        "缺陷复现时间间隔统计",
+        "保护动作报告与故障录波文件",
+        "保护定值单与装置校验报告",
+        "二次回路绝缘与端子检查记录"
+      ],
+      "dataGaps": [],
+      "rulesEvaluated": 12,
+      "asOf": "2026-09-30"
+    },
+    "metrics": {
+      "metrics": {
+        "defectRate": 3.0,
+        "criticalOpen": 0,
+        "overdueOpen": 2,
+        "repairPlanCompletion": 0.0,
+        "testCompletion": 100.0,
+        "loadRate": 70.0,
+        "openCapacityRatio": 30.0,
+        "availabilityRate": 99.98,
+        "trend": null
+      },
+      "denominators": {
+        "deviceCount": 1,
+        "defectCount": 3,
+        "openDefectCount": 2,
+        "faultCount": null,
+        "testCount": 2,
+        "repairPlanCount": 1,
+        "ratedCapacityMVA": 180.0,
+        "currentLoadMVA": 126.0,
+        "openCapacityMVA": 54.0
+      },
+      "dataGaps": [
+        {
+          "section": "trend",
+          "field": "trend",
+          "reason": "bundle 未提供多期缺陷/负载时间序列，缺陷趋势无法计算（不使用推测值）"
+        }
+      ],
+      "summary": "派生指标：缺陷率 3、危急未闭环 0 条、超期未消缺 2 条、负载率 70%",
+      "asOf": "2026-09-30"
+    },
+    "patterns": {
+      "duplicateClusters": [
+        {
+          "part": "套管",
+          "deviceName": "1号主变",
+          "count": 2,
+          "defectIds": [
+            "DF-2026-0101",
+            "DF-2026-0102"
+          ],
+          "levels": {
+            "严重": 1,
+            "一般": 1
+          },
+          "statuses": {
+            "处理中": 1,
+            "待处理": 1
+          },
+          "firstTime": "2026-07-01",
+          "lastTime": "2026-08-20",
+          "defects": [
+            {
+              "defectId": "DF-2026-0101",
+              "level": "严重",
+              "status": "处理中",
+              "discoverTime": "2026-08-20",
+              "part": "套管",
+              "deviceName": "1号主变",
+              "desc": "套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹"
+            },
+            {
+              "defectId": "DF-2026-0102",
+              "level": "一般",
+              "status": "待处理",
+              "discoverTime": "2026-07-01",
+              "part": "套管",
+              "deviceName": "1号主变",
+              "desc": "套管末屏接地电流测试值偏高，建议复测介损"
+            }
+          ],
+          "clusterId": "DUP-1"
+        }
+      ],
+      "familyClusters": [],
+      "summary": {
+        "defectCount": 3,
+        "evaluatedCount": 3,
+        "windowDays": 365,
+        "familyMinCount": 2,
+        "asOf": "2026-08-20",
+        "duplicateClusterCount": 1,
+        "familyClusterCount": 0,
+        "dataGaps": []
+      },
+      "dataGaps": []
+    },
+    "stationHealth": {
+      "station": {
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "voltageLevel": "220kV",
+        "deviceCount": 1
+      },
+      "devices": [
+        {
+          "name": "1号主变",
+          "psrId": "PSR-220-0001",
+          "assetId": "AST-102-0001",
+          "score": 75.8,
+          "grade": "C",
+          "gradeLabel": "注意",
+          "risk": "中",
+          "confidence": 0.9,
+          "summary": "1号主变 健康度 75.8 分（C·注意，风险中）；数据完备度 4/4，置信度 0.9；主要扣分：严重缺陷未闭环：套管法兰渗油，油迹明显，末屏接地引线有受潮痕迹（DF-2026-…；严重缺陷超期未消缺 41 天（限值 7 天）：套管法兰渗油，油迹明显，末屏接地引…；一般缺陷未闭环：套管末屏接地电流测试值偏高，建议复测介损（DF-2026-010…"
+        }
+      ],
+      "aggregate": {
+        "avgScore": 75.8,
+        "gradeDistribution": {
+          "A": 0,
+          "B": 0,
+          "C": 1,
+          "D": 0,
+          "E": 0
+        },
+        "riskTop": [
+          {
+            "name": "1号主变",
+            "score": 75.8,
+            "grade": "C",
+            "gradeLabel": "注意",
+            "risk": "中"
+          }
+        ],
+        "criticalCount": 0
+      },
+      "knowledgeQueries": [
+        "站级健康度统计与风险分级原则",
+        "风险设备优先安排检修的决策要求",
+        "站级运维健康画像指标口径"
+      ],
+      "asOf": "2026-09-30"
+    }
+  }
+}

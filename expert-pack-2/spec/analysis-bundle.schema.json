@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "analysis-bundle.schema.json",
+  "title": "变电分析引擎输入数据包（DeviceBundle）",
+  "description": "由 Agent 通过数据 MCP（PMS 接口工具）取数后组装。所有字段除 device 外均可缺省；缺省时分析引擎计算完备度并降低置信度，不得用推测值补齐。",
+  "type": "object",
+  "required": ["device"],
+  "properties": {
+    "device": {
+      "type": "object",
+      "description": "设备基本信息（来自台账/设备树接口）",
+      "required": ["name"],
+      "properties": {
+        "psrId": {"type": "string", "description": "电网资源ID"},
+        "assetId": {"type": "string", "description": "资产ID"},
+        "utcNum": {"type": "string", "description": "实物ID"},
+        "name": {"type": "string", "description": "设备名称"},
+        "stationId": {"type": "string"},
+        "stationName": {"type": "string"},
+        "voltageLevel": {"type": "string", "description": "电压等级，如 220kV"},
+        "deviceType": {"type": "string", "description": "设备类型，如 变压器/断路器"},
+        "model": {"type": "string", "description": "型号"},
+        "manufacturer": {"type": "string", "description": "生产厂家"},
+        "commissioningDate": {"type": "string", "description": "投运日期 yyyy-MM-dd"},
+        "capacityMVA": {"type": "number", "description": "容量（MVA，主变）"},
+        "status": {"type": "string", "description": "运行状态"}
+      }
+    },
+    "timeWindow": {
+      "type": "object",
+      "description": "本次取数覆盖的时间范围",
+      "properties": {
+        "start": {"type": "string"},
+        "end": {"type": "string"}
+      }
+    },
+    "defects": {
+      "type": "array",
+      "description": "缺陷记录（inquire_defect 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "defectId": {"type": "string"},
+          "defectNo": {"type": "string"},
+          "level": {"type": "string", "enum": ["危急", "严重", "一般"]},
+          "status": {"type": "string", "enum": ["待处理", "处理中", "已消除"]},
+          "discoverTime": {"type": "string"},
+          "closeTime": {"type": "string"},
+          "part": {"type": "string", "description": "缺陷部位，如 套管/机构箱/本体"},
+          "desc": {"type": "string", "description": "缺陷描述"}
+        }
+      }
+    },
+    "hazards": {
+      "type": "array",
+      "description": "隐患记录（list_hazard 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hazardId": {"type": "string"},
+          "type": {"type": "string"},
+          "riskLevel": {"type": "string"},
+          "status": {"type": "string"},
+          "desc": {"type": "string"}
+        }
+      }
+    },
+    "faults": {
+      "type": "array",
+      "description": "故障/跳闸记录（list_fault_trip_records 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "faultId": {"type": "string"},
+          "time": {"type": "string"},
+          "protectionAction": {"type": "string"},
+          "cause": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "description": "修试/试验记录（find_repair_test 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recordId": {"type": "string"},
+          "testType": {"type": "string"},
+          "testDate": {"type": "string"},
+          "result": {"type": "string", "enum": ["合格", "不合格", "异常"]},
+          "dataSummary": {"type": "string"},
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {"type": "string"},
+                "value": {"type": "string"},
+                "unit": {"type": "string"},
+                "conclusion": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "repairPlans": {
+      "type": "array",
+      "description": "检修计划（get_repair_plan 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "planId": {"type": "string"},
+          "planName": {"type": "string"},
+          "planTime": {"type": "string"},
+          "status": {"type": "string"},
+          "deviceName": {"type": "string"}
+        }
+      }
+    },
+    "patrolRecords": {
+      "type": "array",
+      "description": "巡视记录（list_patrol_record 返回）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recordId": {"type": "string"},
+          "patrolTime": {"type": "string"},
+          "result": {"type": "string"},
+          "abnormalities": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "load": {
+      "type": "object",
+      "description": "负载与容量（query_open_capacity 返回）",
+      "properties": {
+        "ratedCapacityMVA": {"type": "number"},
+        "currentLoadMVA": {"type": "number"},
+        "openCapacityMVA": {"type": "number"},
+        "loadRate": {"type": "number", "description": "负载率百分比，如 70 表示 70%"}
+      }
+    },
+    "reliability": {
+      "type": "object",
+      "description": "可靠性指标（query_station_scale_analysis 返回）",
+      "properties": {
+        "availabilityRate": {"type": "number"},
+        "outageHours": {"type": "number"},
+        "outageUserHours": {"type": "number"},
+        "statPeriod": {"type": "string"}
+      }
+    },
+    "sourceMeta": {
+      "type": "array",
+      "description": "数据来源元信息，用于证据链与可信度说明",
+      "items": {
+        "type": "object",
+        "properties": {
+          "interfaceCode": {"type": "string", "description": "如 pgp-106-2411-00703"},
+          "tool": {"type": "string", "description": "MCP 工具名"},
+          "calledAt": {"type": "string"},
+          "params": {"type": "object"}
+        }
+      }
+    }
+  }
+}

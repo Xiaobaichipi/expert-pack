@@ -1,0 +1,149 @@
+{
+  "packSlug": "bianya-intelligent-data-qa",
+  "packDisplayName": "变电智能问数",
+  "packVersion": "",
+  "skillCount": 12,
+  "mcpCount": 2,
+  "specToolCount": 26,
+  "skills": [
+    {
+      "slug": "pms-gateway-mcp",
+      "displayName": "PMS 接口网关（变电问数底座）",
+      "version": "1.1.0",
+      "kind": "mcp",
+      "directory": "standalone/skills/pms-gateway-mcp",
+      "zip": "dist-standalone/skills/pms-gateway-mcp.zip",
+      "mockSamples": "standalone/skills/pms-gateway-mcp/mock/samples.json",
+      "mockCallCount": 26
+    },
+    {
+      "slug": "substation-analysis-mcp",
+      "displayName": "变电分析引擎（健康度/诊断/报告）",
+      "version": "1.1.0",
+      "kind": "mcp",
+      "directory": "standalone/skills/substation-analysis-mcp",
+      "zip": "dist-standalone/skills/substation-analysis-mcp.zip",
+      "mockSamples": "standalone/skills/substation-analysis-mcp/mock/samples.json",
+      "mockCallCount": 5
+    },
+    {
+      "slug": "substation-asset-ledger",
+      "displayName": "设备档案专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-asset-ledger",
+      "zip": "dist-standalone/skills/substation-asset-ledger.zip",
+      "mockSamples": "standalone/skills/substation-asset-ledger/mock/samples.json",
+      "mockCallCount": 4
+    },
+    {
+      "slug": "substation-device-tree",
+      "displayName": "设备导航专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-device-tree",
+      "zip": "dist-standalone/skills/substation-device-tree.zip",
+      "mockSamples": "standalone/skills/substation-device-tree/mock/samples.json",
+      "mockCallCount": 3
+    },
+    {
+      "slug": "substation-om-health",
+      "displayName": "运维健康专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-om-health",
+      "zip": "dist-standalone/skills/substation-om-health.zip",
+      "mockSamples": "standalone/skills/substation-om-health/mock/samples.json",
+      "mockCallCount": 4
+    },
+    {
+      "slug": "substation-maintenance-test",
+      "displayName": "检修试验专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-maintenance-test",
+      "zip": "dist-standalone/skills/substation-maintenance-test.zip",
+      "mockSamples": "standalone/skills/substation-maintenance-test/mock/samples.json",
+      "mockCallCount": 6
+    },
+    {
+      "slug": "substation-reliability",
+      "displayName": "可靠性分析专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-reliability",
+      "zip": "dist-standalone/skills/substation-reliability.zip",
+      "mockSamples": "standalone/skills/substation-reliability/mock/samples.json",
+      "mockCallCount": 4
+    },
+    {
+      "slug": "substation-resource-topology",
+      "displayName": "资源拓扑专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-resource-topology",
+      "zip": "dist-standalone/skills/substation-resource-topology.zip",
+      "mockSamples": "standalone/skills/substation-resource-topology/mock/samples.json",
+      "mockCallCount": 7
+    },
+    {
+      "slug": "substation-health-assessment",
+      "displayName": "健康评估专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-health-assessment",
+      "zip": "dist-standalone/skills/substation-health-assessment.zip",
+      "mockSamples": "standalone/skills/substation-health-assessment/mock/samples.json",
+      "mockCallCount": 5
+    },
+    {
+      "slug": "substation-diagnosis",
+      "displayName": "诊断专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-diagnosis",
+      "zip": "dist-standalone/skills/substation-diagnosis.zip",
+      "mockSamples": "standalone/skills/substation-diagnosis/mock/samples.json",
+      "mockCallCount": 6
+    },
+    {
+      "slug": "substation-report",
+      "displayName": "报告专家",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-report",
+      "zip": "dist-standalone/skills/substation-report.zip",
+      "mockSamples": "standalone/skills/substation-report/mock/samples.json",
+      "mockCallCount": 7
+    },
+    {
+      "slug": "substation-qa-orchestrator",
+      "displayName": "问数总控",
+      "version": "1.1.0",
+      "kind": "skill",
+      "directory": "standalone/skills/substation-qa-orchestrator",
+      "zip": "dist-standalone/skills/substation-qa-orchestrator.zip",
+      "mockSamples": "standalone/skills/substation-qa-orchestrator/mock/samples.json",
+      "mockCallCount": 7
+    }
+  ],
+  "mcpServers": [
+    {
+      "slug": "pms-gateway-mcp",
+      "displayName": "PMS 接口网关（变电问数底座）",
+      "version": "1.1.0",
+      "directory": "standalone/mcp-servers/pms-gateway-mcp",
+      "zip": "dist-standalone/mcp/pms-gateway-mcp.zip",
+      "transport": "stdio"
+    },
+    {
+      "slug": "substation-analysis-mcp",
+      "displayName": "变电分析引擎（健康度/诊断/报告）",
+      "version": "1.1.0",
+      "directory": "standalone/mcp-servers/substation-analysis-mcp",
+      "zip": "dist-standalone/mcp/substation-analysis-mcp.zip",
+      "transport": "stdio"
+    }
+  ],
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。"
+}

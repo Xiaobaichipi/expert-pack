@@ -1,0 +1,702 @@
+{
+  "specVersion": "1.0.0",
+  "packSlug": "bianya-intelligent-data-qa",
+  "packDisplayName": "变电智能问数",
+  "sourceDoc": "变电智能问数_26接口功能说明.docx",
+  "status": "inferred",
+  "note": "接口地址、参数与返回字段均为依据《变电智能问数_26接口功能说明》及平台命名惯例推断的占位规格；正式《接口说明文档》下发后，只需修改本文件（spec/interfaces.json）中的 path/method/params/response，无需改动业务代码。",
+  "defaults": {
+    "baseUrlEnv": "PMS_GATEWAY_BASE_URL",
+    "baseUrlPlaceholder": "https://pms-gateway.example.com",
+    "timeoutSeconds": 30,
+    "retryTimes": 1,
+    "paramStyle": "query_or_body",
+    "authMode": "mock",
+    "authModes": ["mock", "appkey", "token", "none"],
+    "pagingStyle": "pageNo_pageSize"
+  },
+  "groups": [
+    {
+      "id": "asset-ledger",
+      "title": "设备台账",
+      "skill": "substation-asset-ledger",
+      "role": "设备档案专家",
+      "toolCount": 5
+    },
+    {
+      "id": "device-tree",
+      "title": "设备树导航",
+      "skill": "substation-device-tree",
+      "role": "设备导航专家",
+      "toolCount": 2
+    },
+    {
+      "id": "om-health",
+      "title": "运维健康（缺陷/隐患/故障）",
+      "skill": "substation-om-health",
+      "role": "运维健康专家",
+      "toolCount": 4
+    },
+    {
+      "id": "maintenance-test",
+      "title": "检修试验（计划/方案/修试/巡视/试验项目）",
+      "skill": "substation-maintenance-test",
+      "role": "检修试验专家",
+      "toolCount": 6
+    },
+    {
+      "id": "reliability",
+      "title": "可靠性分析",
+      "skill": "substation-reliability",
+      "role": "可靠性分析专家",
+      "toolCount": 3
+    },
+    {
+      "id": "resource-topology",
+      "title": "作业资源与图形拓扑",
+      "skill": "substation-resource-topology",
+      "role": "资源拓扑专家",
+      "toolCount": 6
+    }
+  ],
+  "tools": [
+    {
+      "name": "get_asset_by_id",
+      "code": "pgp-102-2411-00102",
+      "title": "根据资产ID查看设备台账详情",
+      "group": "asset-ledger",
+      "method": "GET",
+      "path": "/assetCenter/queryServices/getAstById",
+      "paramStyle": "query",
+      "params": [
+        {"name": "assetId", "type": "string", "required": true, "desc": "资产/设备台账ID", "example": "AST-102-0001"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "单个设备完整台账对象"},
+      "typicalQuestions": ["这台主变是什么型号、容量多少、投运多久了？"],
+      "mock": {
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationName": "220kV 郑州变电站",
+        "model": "SSZ11-180000/220",
+        "capacityMVA": 180,
+        "manufacturer": "特变电工",
+        "commissioningDate": "2016-05-18",
+        "assetStatus": "在运",
+        "psrId": "PSR-220-0001"
+      }
+    },
+    {
+      "name": "list_asset_params",
+      "code": "pgp-102-2411-00101",
+      "title": "查询设备资产参数列表",
+      "group": "asset-ledger",
+      "method": "GET",
+      "path": "/assetCenter/queryServices/{assetType}",
+      "paramStyle": "mixed",
+      "params": [
+        {"name": "assetType", "type": "string", "required": true, "in": "path", "desc": "设备类型，如 transformer/breaker/disconnector", "example": "transformer"},
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "voltageLevel", "type": "string", "required": false, "desc": "电压等级，如 220kV"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "分页参数列表"},
+      "typicalQuestions": ["全站主变的容量参数分别有哪些？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"assetId": "AST-102-0001", "assetName": "1号主变", "model": "SSZ11-180000/220", "capacityMVA": 180, "voltageRatio": "220/110/10.5kV", "manufacturer": "特变电工"},
+          {"assetId": "AST-102-0002", "assetName": "2号主变", "model": "SSZ11-180000/220", "capacityMVA": 180, "voltageRatio": "220/110/10.5kV", "manufacturer": "特变电工"}
+        ]
+      }
+    },
+    {
+      "name": "get_device_by_utc_num",
+      "code": "pgp-102-2411-00103",
+      "title": "根据实物ID查看设备台账详情",
+      "group": "asset-ledger",
+      "method": "GET",
+      "path": "/assetCenter/queryServices/getDeviceByUTCNum",
+      "paramStyle": "query",
+      "params": [
+        {"name": "utcNum", "type": "string", "required": true, "desc": "实物ID（二维码/标签编码）", "example": "UTC-2020-000123"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "实物ID对应设备台账"},
+      "typicalQuestions": ["扫这个实物ID对应的是哪台设备、台账如何？"],
+      "mock": {
+        "utcNum": "UTC-2020-000123",
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "stationName": "220kV 郑州变电站",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "assetStatus": "在运"
+      }
+    },
+    {
+      "name": "list_psr_by_filters",
+      "code": "pgp-101-2411-00102",
+      "title": "查询电网设备台账列表",
+      "group": "asset-ledger",
+      "method": "POST",
+      "path": "/PSRCenter/queryServices/listPropertiesByFilters",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "voltageLevel", "type": "string", "required": false, "desc": "电压等级"},
+        {"name": "deviceType", "type": "string", "required": false, "desc": "设备类型"},
+        {"name": "name", "type": "string", "required": false, "desc": "设备名称模糊匹配"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "资源侧设备台账分页列表"},
+      "typicalQuestions": ["某220kV站共有多少台断路器、型号分布如何？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"psrId": "PSR-220-0001", "psrName": "1号主变", "deviceType": "变压器", "voltageLevel": "220kV", "stationName": "220kV 郑州变电站"},
+          {"psrId": "PSR-220-0101", "psrName": "2201断路器", "deviceType": "断路器", "voltageLevel": "220kV", "stationName": "220kV 郑州变电站"}
+        ]
+      }
+    },
+    {
+      "name": "get_psr_by_id",
+      "code": "pgp-101-2411-00103",
+      "title": "根据资源ID查看设备台账详情",
+      "group": "asset-ledger",
+      "method": "GET",
+      "path": "/PSRCenter/queryServices/getPsrById",
+      "paramStyle": "query",
+      "params": [
+        {"name": "psrId", "type": "string", "required": true, "desc": "电网资源ID", "example": "PSR-220-0001"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "资源侧设备台账（含拓扑/图形关联）"},
+      "typicalQuestions": ["这个设备的资源台账和接线关系是什么？"],
+      "mock": {
+        "psrId": "PSR-220-0001",
+        "psrName": "1号主变",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationName": "220kV 郑州变电站",
+        "topoNodeId": "TOPO-220-0001",
+        "graphicId": "GEO-220-0001",
+        "assetId": "AST-102-0001"
+      }
+    },
+    {
+      "name": "get_device_tree_root",
+      "code": "pgp-101-2411-00501",
+      "title": "查询设备树根节点",
+      "group": "device-tree",
+      "method": "GET",
+      "path": "/PSRCenter/commonTreeService/getDeviceTreeRoot",
+      "paramStyle": "query",
+      "params": [
+        {"name": "orgId", "type": "string", "required": false, "desc": "组织机构ID，不传返回全局根节点"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "设备树根节点（含 childrenCount）"},
+      "typicalQuestions": ["全局设备树从哪里开始展开？"],
+      "mock": {
+        "nodeId": "ROOT",
+        "nodeName": "河南电网设备树",
+        "nodeType": "ORG_ROOT",
+        "childrenCount": 18
+      }
+    },
+    {
+      "name": "get_device_tree_nodes",
+      "code": "pgp-101-2411-00503",
+      "title": "查询设备树下级节点",
+      "group": "device-tree",
+      "method": "GET",
+      "path": "/PSRCenter/commonTreeService/getDeviceTreeNodes",
+      "paramStyle": "query",
+      "params": [
+        {"name": "parentId", "type": "string", "required": true, "desc": "父节点ID"},
+        {"name": "nodeType", "type": "string", "required": false, "desc": "节点类型过滤：STATION/VOLTAGE_LEVEL/DEVICE/COMPONENT"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 50, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "list", "dataKey": "data", "listKey": "list", "desc": "下一级子树节点列表"},
+      "typicalQuestions": ["进入某站后下面挂哪些一次设备？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"nodeId": "STA-220-01", "nodeName": "220kV 郑州变电站", "nodeType": "STATION", "hasChildren": true},
+          {"nodeId": "STA-110-02", "nodeName": "110kV 二里岗变电站", "nodeType": "STATION", "hasChildren": true}
+        ]
+      }
+    },
+    {
+      "name": "inquire_defect",
+      "code": "pgp-106-2411-00703",
+      "title": "查询缺陷记录",
+      "group": "om-health",
+      "method": "POST",
+      "path": "/WMCenter/defect/inquireDefect",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID（资产ID/资源ID）"},
+        {"name": "defectLevel", "type": "string", "required": false, "desc": "缺陷等级：危急/严重/一般"},
+        {"name": "status", "type": "string", "required": false, "desc": "缺陷状态：待处理/处理中/已消除"},
+        {"name": "startTime", "type": "string", "required": false, "desc": "发现时间起，yyyy-MM-dd"},
+        {"name": "endTime", "type": "string", "required": false, "desc": "发现时间止，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "缺陷记录分页列表"},
+      "typicalQuestions": ["某变电站当前有哪些严重、危急缺陷？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"defectId": "DF-2026-0001", "defectNo": "QXB-2026-0001", "deviceName": "1号主变", "defectLevel": "严重", "discoverTime": "2026-09-12 10:22", "part": "本体/套管", "status": "处理中", "handler": "张工"},
+          {"defectId": "DF-2026-0002", "defectNo": "QXB-2026-0002", "deviceName": "2201断路器", "defectLevel": "一般", "discoverTime": "2026-09-20 15:40", "part": "机构箱", "status": "待处理", "handler": "李工"}
+        ]
+      }
+    },
+    {
+      "name": "view_defect",
+      "code": "pgp-106-2411-00704",
+      "title": "查看缺陷记录",
+      "group": "om-health",
+      "method": "GET",
+      "path": "/WMCenter/defect/viewDefect",
+      "paramStyle": "query",
+      "params": [
+        {"name": "defectId", "type": "string", "required": true, "desc": "缺陷记录ID"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "缺陷完整明细（含照片/处理过程/验收）"},
+      "typicalQuestions": ["这条缺陷的详细情况、处理到哪一步了？"],
+      "mock": {
+        "defectId": "DF-2026-0001",
+        "defectNo": "QXB-2026-0001",
+        "deviceName": "1号主变",
+        "defectDesc": "本体套管油位偏低，存在渗油痕迹",
+        "defectLevel": "严重",
+        "photos": ["https://example.com/defect/DF-2026-0001-1.jpg"],
+        "processRecords": [
+          {"time": "2026-09-12 11:05", "action": "缺陷登记", "operator": "张工"},
+          {"time": "2026-09-13 09:30", "action": "安排处理", "operator": "王班长"}
+        ],
+        "acceptance": {"result": "未验收", "time": ""}
+      }
+    },
+    {
+      "name": "list_hazard",
+      "code": "pgp-106-2411-01003",
+      "title": "查询隐患记录",
+      "group": "om-health",
+      "method": "POST",
+      "path": "/WMCenter/hazard/listHazard",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "hazardType", "type": "string", "required": false, "desc": "隐患类型：内部/外部"},
+        {"name": "riskLevel", "type": "string", "required": false, "desc": "风险等级：重大/较大/一般"},
+        {"name": "status", "type": "string", "required": false, "desc": "整改状态：未整改/整改中/已闭环"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "隐患记录分页列表"},
+      "typicalQuestions": ["变电站周边有哪些尚未闭环的隐患？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"hazardId": "HZ-2026-0001", "hazardType": "外部", "riskLevel": "较大", "stationName": "220kV 郑州变电站", "measures": "加装防护围栏并纳入巡视", "status": "整改中"},
+          {"hazardId": "HZ-2026-0002", "hazardType": "内部", "riskLevel": "一般", "stationName": "110kV 二里岗变电站", "measures": "清理排水沟", "status": "未整改"}
+        ]
+      }
+    },
+    {
+      "name": "list_fault_trip_records",
+      "code": "pgp-106-2411-02603",
+      "title": "查询故障记录",
+      "group": "om-health",
+      "method": "POST",
+      "path": "/WMCenter/operation/faultTriprcdList",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID"},
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "startTime", "type": "string", "required": false, "desc": "故障时间起，yyyy-MM-dd"},
+        {"name": "endTime", "type": "string", "required": false, "desc": "故障时间止，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "故障/跳闸记录分页列表"},
+      "typicalQuestions": ["这台主变最近有没有跳闸/故障？原因是什么？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"faultId": "FT-2026-0001", "deviceName": "1号主变", "faultTime": "2026-08-03 02:17", "protectionAction": "差动保护动作", "cause": "套管绝缘受潮", "stationName": "220kV 郑州变电站"}
+        ]
+      }
+    },
+    {
+      "name": "get_repair_plan",
+      "code": "pgp-106-2411-04206",
+      "title": "查询检修计划",
+      "group": "maintenance-test",
+      "method": "POST",
+      "path": "/WMCenter/repairManagement/getRepairPlan",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID"},
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "year", "type": "integer", "required": false, "desc": "计划年度"},
+        {"name": "month", "type": "integer", "required": false, "desc": "计划月份"},
+        {"name": "planStatus", "type": "string", "required": false, "desc": "计划状态：待执行/执行中/已完成"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "检修计划分页列表"},
+      "typicalQuestions": ["这台设备本年度有没有检修计划？安排在什么时候？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"planId": "RP-2026-0001", "planName": "1号主变A类检修", "deviceName": "1号主变", "planTime": "2026-10-15 至 2026-10-18", "outageArrangement": "主变停电，110kV 母线单母线运行", "status": "待执行"}
+        ]
+      }
+    },
+    {
+      "name": "find_repair_test",
+      "code": "pgp-106-2411-05003",
+      "title": "查询修试记录",
+      "group": "maintenance-test",
+      "method": "POST",
+      "path": "/WMCenter/examineRepair/findRepairTest",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID"},
+        {"name": "startTime", "type": "string", "required": false, "desc": "修试日期起，yyyy-MM-dd"},
+        {"name": "endTime", "type": "string", "required": false, "desc": "修试日期止，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "修试记录分页列表"},
+      "typicalQuestions": ["这台设备的历次修试历史与试验数据有哪些？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"recordId": "RT-2025-0001", "deviceName": "1号主变", "testType": "预防性试验", "testDate": "2025-04-11", "result": "合格", "tester": "赵工", "dataSummary": "绕组直流电阻不平衡率 0.8%，绝缘电阻 12000MΩ"}
+        ]
+      }
+    },
+    {
+      "name": "find_repair_program",
+      "code": "pgp-106-2411-04803",
+      "title": "查询检修方案",
+      "group": "maintenance-test",
+      "method": "POST",
+      "path": "/WMCenter/examineRepair/findProgram",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "programId", "type": "string", "required": false, "desc": "检修方案ID"},
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID"},
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "检修方案分页列表"},
+      "typicalQuestions": ["这次检修的方案和作业内容是什么？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"programId": "PG-2026-0001", "programName": "1号主变A类检修方案", "workContent": "本体及套管检修、有载分接开关检查、冷却系统维护", "safetyMeasures": "停电、验电、装设接地线、悬挂标示牌", "personnel": "工作负责人：王工；成员：4人"}
+        ]
+      }
+    },
+    {
+      "name": "list_patrol_plan",
+      "code": "pgp-106-2411-00303",
+      "title": "查询巡视计划（工单）",
+      "group": "maintenance-test",
+      "method": "POST",
+      "path": "/WMCenter/patrol/planList",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "startDate", "type": "string", "required": false, "desc": "计划开始日期，yyyy-MM-dd"},
+        {"name": "endDate", "type": "string", "required": false, "desc": "计划结束日期，yyyy-MM-dd"},
+        {"name": "status", "type": "string", "required": false, "desc": "执行状态：未开始/执行中/已完成"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "巡视计划/工单分页列表"},
+      "typicalQuestions": ["本季度该站的巡视计划/工单有哪些？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"planId": "PP-2026-0001", "planName": "220kV 郑州变 2026年四季度例行巡视", "stationName": "220kV 郑州变电站", "frequency": "每月一次", "executor": "运维一班", "startDate": "2026-10-01", "endDate": "2026-12-31", "status": "执行中"}
+        ]
+      }
+    },
+    {
+      "name": "list_patrol_record",
+      "code": "pgp-106-2411-00403",
+      "title": "查询巡视记录",
+      "group": "maintenance-test",
+      "method": "POST",
+      "path": "/WMCenter/patrol/recordList",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "startDate", "type": "string", "required": false, "desc": "巡视日期起，yyyy-MM-dd"},
+        {"name": "endDate", "type": "string", "required": false, "desc": "巡视日期止，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "巡视记录分页列表"},
+      "typicalQuestions": ["该站最近一次巡视是什么时候、结果如何？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"recordId": "PR-2026-0001", "stationName": "220kV 郑州变电站", "patrolTime": "2026-09-28 09:00-11:20", "patrolType": "例行巡视", "result": "发现异常 2 项", "abnormalities": ["1号主变套管渗油", "2201断路器机构箱受潮"]}
+        ]
+      }
+    },
+    {
+      "name": "list_test_item",
+      "code": "pgp-106-2411-06801",
+      "title": "查询检测试验项目",
+      "group": "maintenance-test",
+      "method": "GET",
+      "path": "/WMCenter/test/testItemList",
+      "paramStyle": "query",
+      "params": [
+        {"name": "deviceType", "type": "string", "required": false, "desc": "设备类型，如 变压器"},
+        {"name": "testType", "type": "string", "required": false, "desc": "试验类型，如 预防性试验"},
+        {"name": "voltageLevel", "type": "string", "required": false, "desc": "电压等级"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 50, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "试验项目清单"},
+      "typicalQuestions": ["变压器预防性试验要做哪些项目、依据什么标准？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"itemId": "TI-001", "itemName": "绕组绝缘电阻测量", "deviceType": "变压器", "testType": "预防性试验", "standard": "DL/T 596-2021", "requirement": "绝缘电阻不低于出厂值的 70%"},
+          {"itemId": "TI-002", "itemName": "绕组直流电阻测量", "deviceType": "变压器", "testType": "预防性试验", "standard": "DL/T 596-2021", "requirement": "相间不平衡率不大于 2%"}
+        ]
+      }
+    },
+    {
+      "name": "query_station_scale_analysis",
+      "code": "pgp-108-2411-00405",
+      "title": "统计变电站可靠性分析数据",
+      "group": "reliability",
+      "method": "POST",
+      "path": "/analyCenter/reliabilityAnalyData/queryStationScaleAnalysis",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "startDate", "type": "string", "required": false, "desc": "统计开始日期，yyyy-MM-dd"},
+        {"name": "endDate", "type": "string", "required": false, "desc": "统计结束日期，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "变电站可靠性指标列表"},
+      "typicalQuestions": ["这个站的供电可靠率是多少？可靠性指标如何？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"stationId": "STA-220-01", "stationName": "220kV 郑州变电站", "statPeriod": "2026-01 至 2026-09", "availabilityRate": 99.982, "outageHours": 1.42, "outageUserHours": 320.5, "outageCount": 2}
+        ]
+      }
+    },
+    {
+      "name": "query_outage_incident",
+      "code": "pgp-108-2411-00502",
+      "title": "查询可靠性中压停电事件列表",
+      "group": "reliability",
+      "method": "POST",
+      "path": "/analyCenter/reliabilityEvent/queryOutageIncidentInformation",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "voltageLevel", "type": "string", "required": false, "desc": "电压等级"},
+        {"name": "startTime", "type": "string", "required": false, "desc": "停电时间起，yyyy-MM-dd"},
+        {"name": "endTime", "type": "string", "required": false, "desc": "停电时间止，yyyy-MM-dd"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "中压停电事件列表"},
+      "typicalQuestions": ["最近有哪些停电事件？影响范围多大？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"incidentId": "OI-2026-0001", "outageStart": "2026-09-05 08:00", "outageEnd": "2026-09-05 12:30", "scope": "10kV 城北线 12 个台区", "cause": "计划检修", "voltageLevel": "10kV"}
+        ]
+      }
+    },
+    {
+      "name": "query_open_capacity",
+      "code": "pgp-108-2411-00201",
+      "title": "查询设备可开放容量",
+      "group": "reliability",
+      "method": "POST",
+      "path": "/analyCenter/queryOpenCapacityData/find",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID"},
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "voltageLevel", "type": "string", "required": false, "desc": "电压等级"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "设备可开放容量与负载列表"},
+      "typicalQuestions": ["这台主变还有多少可开放容量？当前负载多大？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"deviceId": "AST-102-0001", "deviceName": "1号主变", "ratedCapacityMVA": 180, "currentLoadMVA": 126, "openCapacityMVA": 54, "loadRate": 70.0}
+        ]
+      }
+    },
+    {
+      "name": "find_smart_device",
+      "code": "pgp-105-2411-00602",
+      "title": "查询智能装备台账信息",
+      "group": "resource-topology",
+      "method": "POST",
+      "path": "/WRCenter/SmartDevice/findSmartDevice",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "deviceType", "type": "string", "required": false, "desc": "装备类型：在线监测/机器人/无人机"},
+        {"name": "onlineStatus", "type": "string", "required": false, "desc": "在线状态：在线/离线"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "智能装备台账列表"},
+      "typicalQuestions": ["站里有哪些在线监测/智能装备？在不在线？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"deviceId": "SD-001", "deviceName": "1号主变在线监测装置", "deviceType": "在线监测", "stationName": "220kV 郑州变电站", "onlineStatus": "在线"},
+          {"deviceId": "SD-002", "deviceName": "巡检机器人 A01", "deviceType": "机器人", "stationName": "220kV 郑州变电站", "onlineStatus": "离线"}
+        ]
+      }
+    },
+    {
+      "name": "get_instrument_list",
+      "code": "pgp-105-2411-00403",
+      "title": "查询仪器仪表台账信息",
+      "group": "resource-topology",
+      "method": "POST",
+      "path": "/WRCenter/instruments/getInstrumentLIST",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "stationId", "type": "string", "required": false, "desc": "变电站ID"},
+        {"name": "instrumentType", "type": "string", "required": false, "desc": "仪器仪表类型"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 20, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "仪器仪表台账列表"},
+      "typicalQuestions": ["站内有哪些试验仪器仪表？检定情况如何？"],
+      "mock": {
+        "total": 1,
+        "list": [
+          {"instrumentId": "IN-001", "instrumentName": "回路电阻测试仪", "instrumentType": "试验仪器", "stationName": "220kV 郑州变电站", "calibrationDate": "2026-03-15", "calibrationStatus": "合格"}
+        ]
+      }
+    },
+    {
+      "name": "get_manufacturer_infos",
+      "code": "pgp-102-2411-00701",
+      "title": "查询生产厂家列表",
+      "group": "resource-topology",
+      "method": "GET",
+      "path": "/baseCenter/devInfoService/manufacturerInfos",
+      "paramStyle": "query",
+      "params": [
+        {"name": "manufacturerName", "type": "string", "required": false, "desc": "厂家名称模糊匹配"},
+        {"name": "pageNo", "type": "integer", "required": false, "default": 1, "desc": "页码"},
+        {"name": "pageSize", "type": "integer", "required": false, "default": 50, "desc": "每页条数"}
+      ],
+      "responseHint": {"kind": "paged", "dataKey": "data", "listKey": "list", "desc": "生产厂家列表"},
+      "typicalQuestions": ["这批断路器是哪个厂家生产的？"],
+      "mock": {
+        "total": 2,
+        "list": [
+          {"manufacturerId": "MF-001", "manufacturerName": "特变电工", "deviceTypes": ["变压器"], "contact": "400-000-0001"},
+          {"manufacturerId": "MF-002", "manufacturerName": "平高电气", "deviceTypes": ["断路器", "隔离开关"], "contact": "400-000-0002"}
+        ]
+      }
+    },
+    {
+      "name": "query_svg_map_by_psr_id",
+      "code": "pgp-103-2411-00502",
+      "title": "根据设备ID获取专题图",
+      "group": "resource-topology",
+      "method": "GET",
+      "path": "/geoCenter/thematicMapQueryServices/querySvgMapByPsrId",
+      "paramStyle": "query",
+      "params": [
+        {"name": "psrId", "type": "string", "required": true, "desc": "电网资源ID"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "专题图 SVG 内容与图元信息"},
+      "typicalQuestions": ["能调出这台设备的接线图/专题图吗？"],
+      "mock": {
+        "psrId": "PSR-220-0001",
+        "mapName": "220kV 郑州变电站一次接线图",
+        "mapType": "STATION_SINGLE_LINE",
+        "svgContent": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"600\"><text x=\"20\" y=\"30\">DEMO SVG</text></svg>",
+        "version": "2026-09-01"
+      }
+    },
+    {
+      "name": "search_power_path",
+      "code": "pgp-104-2411-00101",
+      "title": "查询电源点和供电路径",
+      "group": "resource-topology",
+      "method": "POST",
+      "path": "/topoCenter/normalServices/searchPower",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "psrId", "type": "string", "required": false, "desc": "电网资源ID（与 deviceId 二选一）"},
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID（与 psrId 二选一）"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "电源点与供电路径"},
+      "typicalQuestions": ["这个站的电源从哪里来？供电路径是什么？"],
+      "mock": {
+        "psrId": "PSR-220-0001",
+        "sourcePsrId": "PSR-500-0001",
+        "sourceName": "500kV 嵩山变电站",
+        "pathDescription": "500kV 嵩山变 → 220kV 郑州变 → 1号主变",
+        "pathNodes": [
+          {"psrId": "PSR-500-0001", "name": "500kV 嵩山变电站"},
+          {"psrId": "PSR-220-0001", "name": "220kV 郑州变电站"},
+          {"psrId": "PSR-220-0001-T1", "name": "1号主变"}
+        ]
+      }
+    },
+    {
+      "name": "analyze_supply_area",
+      "code": "pgp-104-2411-00301",
+      "title": "分析供电范围",
+      "group": "resource-topology",
+      "method": "POST",
+      "path": "/topoCenter/normalServices/supplyArea",
+      "paramStyle": "json_body",
+      "params": [
+        {"name": "psrId", "type": "string", "required": false, "desc": "电网资源ID（与 deviceId 二选一）"},
+        {"name": "deviceId", "type": "string", "required": false, "desc": "设备ID（与 psrId 二选一）"},
+        {"name": "direction", "type": "string", "required": false, "desc": "分析方向：outage（停电影响）/restore（复电范围）", "default": "outage"}
+      ],
+      "responseHint": {"kind": "object", "dataKey": "data", "desc": "停/供电影响范围"},
+      "typicalQuestions": ["这台设备停电会影响哪些用户/设备？"],
+      "mock": {
+        "psrId": "PSR-220-0001",
+        "direction": "outage",
+        "affectedCount": 3,
+        "affectedStations": ["110kV 二里岗变电站", "110kV 城东变电站"],
+        "affectedUsers": ["城北线台区 12 个", "重要用户 2 户"],
+        "riskLevel": "较大"
+      }
+    }
+  ]
+}

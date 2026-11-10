@@ -1,0 +1,22 @@
+[OK  ] substation-asset-ledger          行数=164 name=substation-asset-ledger        工具=5 编码=5 desc=505字
+[OK  ] substation-device-tree           行数=143 name=substation-device-tree         工具=3 编码=2 desc=410字
+[OK  ] substation-om-health             行数=147 name=substation-om-health           工具=4 编码=4 desc=459字
+[OK  ] substation-maintenance-test      行数=158 name=substation-maintenance-test    工具=6 编码=6 desc=519字
+[OK  ] substation-reliability           行数=142 name=substation-reliability         工具=4 编码=3 desc=506字
+[OK  ] substation-resource-topology     行数=168 name=substation-resource-topology   工具=8 编码=6 desc=563字
+[OK  ] substation-qa-orchestrator       行数=171 name=substation-qa-orchestrator     工具=14 编码=1 desc=479字
+
+    ref substation-asset-ledger/queries.md             行=156 问数= 8
+    ref substation-device-tree/queries.md              行=126 问数= 7
+    ref substation-om-health/queries.md                行=154 问数= 9
+    ref substation-maintenance-test/queries.md         行=164 问数=10
+    ref substation-reliability/queries.md              行=139 问数= 8
+    ref substation-resource-topology/queries.md        行=167 问数=10
+    ref substation-qa-orchestrator/routing.md          行=153 问数= 0
+    ref substation-qa-orchestrator/metrics.md          行=144 问数= 0
+    ref substation-qa-orchestrator/queries.md          行=205 问数=10
+
+spec 工具数=26 接口编码数=26；正文覆盖工具数=26
+frontmatter 校验方式: PyYAML=可用 + 自研最小解析器
+未覆盖的 spec 工具: 无
+总体结论: PASS

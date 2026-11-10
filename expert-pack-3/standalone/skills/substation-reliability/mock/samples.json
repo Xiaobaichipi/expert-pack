@@ -1,0 +1,125 @@
+{
+  "skill": "substation-reliability",
+  "displayName": "可靠性分析专家",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "query_station_scale_analysis",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "站可靠性指标",
+      "response": {
+        "list": [
+          {
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "statStartDate": "2026-01-01",
+            "statEndDate": "2026-09-30",
+            "statPeriod": "2026-01 至 2026-09",
+            "availabilityRate": 99.982,
+            "outageHours": 1.42,
+            "outageUserHours": 320.5,
+            "outageCount": 2
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "query_outage_incident",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "停电事件",
+      "response": {
+        "list": [
+          {
+            "incidentId": "OI-2026-0001",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "outageStart": "2026-09-05 08:00",
+            "outageEnd": "2026-09-05 12:30",
+            "scope": "10kV 城北线 12 个台区",
+            "cause": "计划检修",
+            "voltageLevel": "10kV",
+            "affectedUserCount": 1260
+          }
+        ],
+        "total": 1,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "query_open_capacity",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "容量",
+      "response": {
+        "list": [
+          {
+            "deviceId": "AST-102-0001",
+            "psrId": "PSR-220-0001",
+            "deviceName": "1号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "voltageLevel": "220kV",
+            "ratedCapacityMVA": 180,
+            "currentLoadMVA": 126,
+            "openCapacityMVA": 54,
+            "loadRate": 70.0
+          },
+          {
+            "deviceId": "AST-102-0002",
+            "psrId": "PSR-220-0002",
+            "deviceName": "2号主变",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "voltageLevel": "220kV",
+            "ratedCapacityMVA": 180,
+            "currentLoadMVA": 98,
+            "openCapacityMVA": 82,
+            "loadRate": 54.4
+          }
+        ],
+        "total": 2,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "analyze_supply_area",
+      "params": {
+        "psrId": "PSR-220-0001",
+        "direction": "outage"
+      },
+      "note": "停电影响范围",
+      "response": {
+        "psrId": "PSR-220-0001",
+        "psrName": "1号主变",
+        "direction": "outage",
+        "affectedCount": 4,
+        "affectedStations": [
+          "110kV 二里岗变电站",
+          "110kV 城东变电站"
+        ],
+        "affectedUsers": [
+          "城北线台区 12 个",
+          "重要用户 2 户"
+        ],
+        "riskLevel": "较大"
+      }
+    }
+  ]
+}

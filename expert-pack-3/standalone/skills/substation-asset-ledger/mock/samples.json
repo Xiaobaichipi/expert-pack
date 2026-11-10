@@ -1,0 +1,136 @@
+{
+  "skill": "substation-asset-ledger",
+  "displayName": "设备档案专家",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "get_asset_by_id",
+      "params": {
+        "assetId": "AST-102-0001"
+      },
+      "note": "按资产ID查台账",
+      "response": {
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "assetType": "transformer",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "model": "SSZ11-180000/220",
+        "capacityMVA": 180,
+        "voltageRatio": "220/110/10.5kV",
+        "manufacturer": "特变电工",
+        "manufacturerId": "MF-001",
+        "commissioningDate": "2016-05-18",
+        "assetStatus": "在运",
+        "psrId": "PSR-220-0001",
+        "utcNum": "UTC-2020-000123",
+        "topoNodeId": "TOPO-220-0001",
+        "graphicId": "GEO-220-0001"
+      }
+    },
+    {
+      "tool": "list_asset_params",
+      "params": {
+        "assetType": "transformer",
+        "stationId": "STA-220-01"
+      },
+      "note": "全站主变容量参数",
+      "response": {
+        "list": [
+          {
+            "assetId": "AST-102-0001",
+            "assetName": "1号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "model": "SSZ11-180000/220",
+            "capacityMVA": 180,
+            "voltageRatio": "220/110/10.5kV",
+            "manufacturer": "特变电工",
+            "commissioningDate": "2016-05-18",
+            "assetStatus": "在运"
+          },
+          {
+            "assetId": "AST-102-0002",
+            "assetName": "2号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "model": "SSZ11-180000/220",
+            "capacityMVA": 180,
+            "voltageRatio": "220/110/10.5kV",
+            "manufacturer": "特变电工",
+            "commissioningDate": "2017-03-22",
+            "assetStatus": "在运"
+          }
+        ],
+        "total": 2,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": false
+      }
+    },
+    {
+      "tool": "get_device_by_utc_num",
+      "params": {
+        "utcNum": "UTC-2020-000123"
+      },
+      "note": "实物ID扫码定位",
+      "response": {
+        "utcNum": "UTC-2020-000123",
+        "assetId": "AST-102-0001",
+        "assetName": "1号主变",
+        "stationId": "STA-220-01",
+        "stationName": "220kV 郑州变电站",
+        "deviceType": "变压器",
+        "voltageLevel": "220kV",
+        "assetStatus": "在运"
+      }
+    },
+    {
+      "tool": "list_psr_by_filters",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "按站查资源清单",
+      "response": {
+        "list": [
+          {
+            "psrId": "PSR-220-0001",
+            "psrName": "1号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0001",
+            "topoNodeId": "TOPO-220-0001",
+            "graphicId": "GEO-220-0001"
+          },
+          {
+            "psrId": "PSR-220-0002",
+            "psrName": "2号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0002",
+            "topoNodeId": "TOPO-220-0002",
+            "graphicId": "GEO-220-0002"
+          }
+        ],
+        "total": 5,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": true
+      }
+    }
+  ]
+}

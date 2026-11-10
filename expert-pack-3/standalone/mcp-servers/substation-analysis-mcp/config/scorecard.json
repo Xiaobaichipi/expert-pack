@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "engineVersion": "1.1.0",
+  "note": "变电设备健康度评分卡。维度权重合计必须为 1.0；每维从 base 分起扣，单维扣分上限 100；评分/等级/置信度全部由 Python 确定性计算，阈值与权重只在本文件调整。",
+  "profiles": {
+    "default": {
+      "id": "default",
+      "name": "变电设备健康度评分卡（默认档）",
+      "description": "适用于变压器、断路器、隔离开关等变电主设备。权重：缺陷 0.30 / 故障 0.25 / 修试 0.20 / 负载 0.15 / 台账 0.10；同输入同输出，不读系统时钟（时间基准为 bundle.timeWindow.end 或 CLI --as-of）。",
+      "dimensions": [
+        {
+          "id": "defects",
+          "name": "缺陷",
+          "weight": 0.30,
+          "base": 100,
+          "maxDeduction": 100,
+          "knowledgeQueries": [
+            "危急缺陷定级标准与消缺时限要求",
+            "严重缺陷超期未消缺的考核与处理要求",
+            "变压器套管渗油缺陷定级及处理工艺"
+          ],
+          "rules": {
+            "criticalOpen": {"delta": -30, "label": "危急缺陷未闭环"},
+            "seriousOpen": {"delta": -15, "label": "严重缺陷未闭环"},
+            "normalOpen": {"delta": -5, "label": "一般缺陷未闭环"},
+            "overdue": {
+              "delta": -10,
+              "label": "超期未消缺",
+              "overdueDays": {"危急": 1, "严重": 7, "一般": 30}
+            }
+          }
+        },
+        {
+          "id": "faults",
+          "name": "故障",
+          "weight": 0.25,
+          "base": 100,
+          "maxDeduction": 100,
+          "knowledgeQueries": [
+            "故障跳闸记录统计与重复跳闸判定口径",
+            "差动保护动作原因分析要点",
+            "变压器跳闸后试验复测要求"
+          ],
+          "rules": {
+            "recent": {"delta": -25, "days": 365, "label": "近 12 个月故障跳闸"},
+            "mid": {"delta": -10, "days": 1095, "label": "13-36 个月故障跳闸"}
+          }
+        },
+        {
+          "id": "tests",
+          "name": "修试",
+          "weight": 0.20,
+          "base": 100,
+          "maxDeduction": 100,
+          "knowledgeQueries": [
+            "预防性试验周期与超期判定标准",
+            "变压器预防性试验不合格处理要求",
+            "套管介损与电容量试验合格判据"
+          ],
+          "rules": {
+            "noRecord": {"delta": -20, "label": "无试验记录"},
+            "stale": {"delta": -20, "staleDays": 1095, "label": "试验超期"},
+            "unqualified": {"delta": -30, "results": ["不合格", "异常"], "label": "试验结果不合格或异常"}
+          }
+        },
+        {
+          "id": "load",
+          "name": "负载",
+          "weight": 0.15,
+          "base": 100,
+          "maxDeduction": 100,
+          "knowledgeQueries": [
+            "负载率与可开放容量统计口径",
+            "变压器过负荷运行限值与温升要求",
+            "设备可开放容量计算方法"
+          ],
+          "rules": {
+            "overload": {"delta": -20, "threshold": 90, "label": "负载率超过 90%"},
+            "heavy": {"delta": -10, "threshold": 80, "label": "负载率超过 80%"},
+            "lowOpenCapacity": {"delta": -10, "threshold": 5, "label": "可开放容量比低于 5%"}
+          }
+        },
+        {
+          "id": "ledger",
+          "name": "台账",
+          "weight": 0.10,
+          "base": 100,
+          "maxDeduction": 100,
+          "knowledgeQueries": [
+            "设备台账关键字段完整性要求",
+            "资产ID与资源ID对应关系维护要求"
+          ],
+          "rules": {
+            "missingField": {"delta": -10, "fields": ["model", "manufacturer", "commissioningDate", "deviceType"], "label": "台账关键字段缺失"},
+            "missingIds": {"delta": -20, "fields": ["assetId", "psrId"], "label": "资产ID与资源ID均缺失"}
+          }
+        }
+      ],
+      "grades": [
+        {"grade": "A", "minScore": 90, "label": "健康", "risk": "低"},
+        {"grade": "B", "minScore": 80, "label": "良好", "risk": "低"},
+        {"grade": "C", "minScore": 70, "label": "注意", "risk": "中"},
+        {"grade": "D", "minScore": 60, "label": "预警", "risk": "较高"},
+        {"grade": "E", "minScore": 0, "label": "严重", "risk": "高"}
+      ],
+      "confidence": {
+        "base": 0.9,
+        "missingSectionPenalty": 0.05,
+        "missingSectionMaxPenalty": 0.4,
+        "staleWindowDays": 180,
+        "staleWindowPenalty": 0.1,
+        "min": 0.30,
+        "max": 0.95
+      },
+      "completeness": {"sections": ["defects", "faults", "tests", "load"]},
+      "summary": {"topDeductions": 3},
+      "stationKnowledgeQueries": [
+        "站级健康度统计与风险分级原则",
+        "风险设备优先安排检修的决策要求",
+        "站级运维健康画像指标口径"
+      ]
+    }
+  }
+}

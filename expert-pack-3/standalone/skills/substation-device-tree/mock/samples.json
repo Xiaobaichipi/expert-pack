@@ -1,0 +1,100 @@
+{
+  "skill": "substation-device-tree",
+  "displayName": "设备导航专家",
+  "version": "1.1.0",
+  "note": "模拟数据，仅用于内网联调/演示；不得作为业务结论或真实数据使用。",
+  "dataSource": "skills/pms-gateway-mcp/scripts/mock_gateway/data.py",
+  "deterministic": true,
+  "kind": "skill",
+  "calls": [
+    {
+      "tool": "get_device_tree_root",
+      "params": {},
+      "note": "设备树根节点",
+      "response": {
+        "nodeId": "ROOT",
+        "nodeName": "河南电网设备树",
+        "nodeType": "ORG_ROOT",
+        "orgId": "ORG-4101",
+        "hasChildren": true,
+        "parentId": null,
+        "childrenCount": 4,
+        "stationCount": 4
+      }
+    },
+    {
+      "tool": "get_device_tree_nodes",
+      "params": {
+        "parentId": "ROOT"
+      },
+      "note": "根下变电站节点",
+      "response": {
+        "list": [
+          {
+            "nodeId": "STA-500-00",
+            "nodeName": "500kV 嵩山变电站",
+            "nodeType": "STATION",
+            "voltageLevel": "500kV",
+            "hasChildren": false,
+            "childrenCount": 0,
+            "parentId": "ROOT",
+            "voltageLevelNodeIds": []
+          },
+          {
+            "nodeId": "STA-220-01",
+            "nodeName": "220kV 郑州变电站",
+            "nodeType": "STATION",
+            "voltageLevel": "220kV",
+            "hasChildren": true,
+            "childrenCount": 1,
+            "parentId": "ROOT",
+            "voltageLevelNodeIds": [
+              "STA-220-01#220kV"
+            ]
+          }
+        ],
+        "total": 4,
+        "pageNo": 1,
+        "pageSize": 50,
+        "listTruncated": true
+      }
+    },
+    {
+      "tool": "list_psr_by_filters",
+      "params": {
+        "stationId": "STA-220-01"
+      },
+      "note": "站点下 PSR 资源",
+      "response": {
+        "list": [
+          {
+            "psrId": "PSR-220-0001",
+            "psrName": "1号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0001",
+            "topoNodeId": "TOPO-220-0001",
+            "graphicId": "GEO-220-0001"
+          },
+          {
+            "psrId": "PSR-220-0002",
+            "psrName": "2号主变",
+            "deviceType": "变压器",
+            "voltageLevel": "220kV",
+            "stationId": "STA-220-01",
+            "stationName": "220kV 郑州变电站",
+            "assetId": "AST-102-0002",
+            "topoNodeId": "TOPO-220-0002",
+            "graphicId": "GEO-220-0002"
+          }
+        ],
+        "total": 5,
+        "pageNo": 1,
+        "pageSize": 20,
+        "listTruncated": true
+      }
+    }
+  ]
+}

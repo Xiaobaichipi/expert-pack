@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "pms-gateway": {
+      "command": "python",
+      "args": [
+        "REPLACE_ME/standalone/mcp-servers/pms-gateway-mcp/scripts/mcp_server.py"
+      ],
+      "env": {
+        "PMS_AUTH_MODE": "mock"
+      }
+    },
+    "substation-analysis": {
+      "command": "python",
+      "args": [
+        "REPLACE_ME/standalone/mcp-servers/substation-analysis-mcp/scripts/analysis_mcp.py"
+      ]
+    }
+  }
+}

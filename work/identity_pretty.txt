@@ -1,0 +1,434 @@
+##### getIdentityMarkdown
+--- off 2343828
+",y2:"19.1663",gradientUnits:"userSpaceOnUse",children:[w.jsx("stop",{
+stopColor:"#A6E527"}
+),w.jsx("stop",{
+offset:"1",stopColor:"#0CBF5B"}
+)]}
+)}
+)]}
+),w.jsx("span",{
+className:"text-[12px] font-medium leading-[20px] text-[#050505]",children:"å®å¨"}
+)]}
+)}
+function getDetailScene(a){
+const{
+scene:s}
+=a;
+return s&&pH[s]?s:void 0}
+function getExpertRole(a){
+const s=getExpertPackageSubSceneRole(a.subScene);
+if(s)return s;
+const c=getDetailScene(a);
+return c?getExpertPackageRole(c)??`${
+pH[c]}
+ä¸å®¶`:getSkillCoordinates(a).length>1?"å¤åè½åä¸å®¶å¢":"ä»»å¡æ§è¡ä¸å®¶"}
+function getSkillCoordinates(a){
+return a.skills&&a.skills.length>0?a.skills:(a.skillSlugs??[]).map(a=>({
+slug:a,namespace:null}
+))}
+function getIdentityMarkdown(a){
+const s=a.content?function stripFrontmatter$2(a){
+return a.replace(/^\s*---\s*\n[\s\S]*?\n---\s*\n?/,"").trimStart()}
+(a.content).trim():"";
+return s||`# ${
+a.displayName}
+å·¥ä½æµ\n\n${
+a.summary||"ææ ä¸å®¶åæ¦è¿°ã"}
+\n\nè¿ä¸ªä¸å®¶åä¼æ ${
+getSkillCoordinates(a).length}
+ ä¸ª Skill ä¸²èæä¸å¥å®æ´å·¥ä½æµï¼éåéè¦ä»è¾å¥ãåæå°äº¤ä»è¿ç»­æ¨è¿çä»»å¡ã`}
+function ExpertAvatar({
+data:a}
+){
+const s=getExpertRole(a),c=getExpertProfileImage(a);
+return w.jsxs("div",{
+className:"relative flex h-[64px] w-[64px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[rgba(0,82,217,0.08)] text-[#0052D9]",children:[c?w.jsx("img",{
+src:c,alt:"",className:"h-full w-full object-cover",onError:s=>setDefaultExpertProfileImage(s.currentTarget,a.slug||a.displayName)}
+):w.jsx(Qr,{
+className:"h-[30px] w-[30px]",strokeWidth:2.1}
+),w.jsx("span",{
+className:"sr-only",children:s}
+)]}
+)}
+function CopySuccessIcon(){
+return w.jsxs("svg",{
+width:"16",height:"
+--- off 2353906
+eading-[18px] text-[rgba(0,0,0,0.45)] [word-break:break-word]",title:p,children:p}
+)]}
+),w.jsx("span",{
+className:"mt-[2px] shrink-0 text-[12px] font-medium leading-[20px] text-[rgba(0,0,0,0.3)] transition-colors group-hover:text-[rgba(0,0,0,0.7)]",children:"æ¥ç"}
+)]}
+,`${
+a.namespace??""}
+/${
+a.slug}
+`)}
+)}
+)]}
+)}
+function SkillPackageOverview({
+identityMarkdown:a}
+){
+return w.jsx("div",{
+className:"markdown-body",children:w.jsx(Markdown,{
+remarkPlugins:[remarkGfm],rehypePlugins:[rehypeSanitize],children:a}
+)}
+)}
+function SkillPackageDownloadButton({
+data:a}
+){
+const[s,c]=Q.useState(!1),handleDownload=async()=>{
+if(!s){
+c(!0);
+try{
+await async function downloadSkillPackageZip(a){
+const s=new pv,c=a.content?.trim()||getIdentityMarkdown(a),u=getSkillCoordinates(a);
+s.file("manifest.json",JSON.stringify({
+type:"skillhub-expert-package",slug:a.slug,displayName:a.displayName,summary:a.summary,skillSlugs:a.skillSlugs,skills:u}
+,null,2)),s.file(`skillsets/${
+a.slug}
+.md`,c);
+for(const p of u){
+const a=getDownloadCoordinate({
+slug:p.slug,namespace:p.namespace?{
+handle:p.namespace,displayName:p.namespace,publicSlug:p.slug,canonicalName:`@${
+p.namespace}
+/${
+p.slug}
+`}
+:null}
+),c=await fetch(getSkillDownloadUrl(a),{
+redirect:"follow"}
+);
+if(!c.ok)throw new Error(`ä¸è½½ ${
+p.slug}
+ å¤±è´¥: ${
+c.status}
+`);
+const u=await c.blob();
+s.file(`skills/${
+p.slug}
+.zip`,u)}
+triggerBrowserDownload(await s.generateAsync({
+type:"blob"}
+),`${
+a.slug}
+.zip`)}
+(a)}
+catch(u){
+console.error("ä¸è½½ä¸å®¶å Zip å¤±è´¥:",u),ot.error("ä¸è½½å¤±è´¥ï¼è¯·ç¨åéè¯")}
+finally{
+c(!1)}
+}
+}
+;
+return w.jsxs("button",{
+type:"button","dt-eid":"pkgdetail-zip-download-btn","dt-remark":`pkg=${
+a.slug}
+`,onClick:()=>{
+handleDownload()}
+,disabled:s,className:cn$2("mt-[24px] flex 
+--- off 2356646
+(()=>{
+w.current||p(!1)}
+)}
+,[a]);
+return Q.useEffect(()=>(k(),()=>{
+w.current=!0}
+),[k]),{
+data:s,loading:u,error:h,retry:k}
+}
+(a),[N,E]=Q.useState(getInitialDetailTab);
+Q.useEffect(()=>{
+window.scrollTo(0,0)}
+,[]);
+const T=Q.useCallback(a=>{
+E(a),function syncDetailTabToUrl(a){
+if("undefined"==typeof window)return;
+const s=new URL(window.location.href);
+"skills"===a?s.searchParams.set("tab","skills"):s.searchParams.delete("tab");
+const c=`${
+s.pathname}
+${
+s.search}
+${
+s.hash}
+`;
+window.history.replaceState(window.history.state,"",c)}
+(a)}
+,[]),O=Q.useMemo(()=>p?getSkillCoordinates(p).map(a=>({
+slug:a.slug,namespace:a.namespace??void 0}
+)):[],[p]),{
+items:F,loaded:L,error:B,retry:H}
+=useSkillsBatch(O),U=Q.useMemo(()=>p?getIdentityMarkdown(p):"",[p]),z=Q.useMemo(()=>{
+if(!p||!L)return[];
+const a=new Set(F.map(a=>skillKey(a)));
+return console.log("availableKeys",a),getSkillCoordinates(p).filter(s=>{
+const c=s.namespace?`@${
+s.namespace}
+/${
+s.slug}
+`:s.slug;
+return!a.has(c)}
+).map(a=>a.slug)}
+,[p,F,L]),q=!!p&&!L&&!B,W=m||B,Y=m?k:H,X=!!p&&L&&!B&&(0===getSkillCoordinates(p).length||z.length>0);
+return w.jsx("div",{
+className:"min-h-screen pb-16 pt-[76px]",children:w.jsxs("div",{
+className:"mx-auto max-w-[1440px] px-4 md:px-10 lg:px-[80px]",children:[(h||q)&&w.jsx(DetailSkeleton$3,{
+isMobile:u}
+),W&&!q&&w.jsxs("div",{
+className:"text-center py-16",children:[w.jsx("p",{
+className:"text-sm text-[rgba(0,0,0,0.5)] mb-4",children:W}
+),w.jsx("button",{
+"dt-eid":"pkgdetail-retry-btn",onClick:Y,className:cn$2("inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full","bg-[rgba(0,122,255,0.1)] text-[#0052D9] text-sm font-medium","hover:bg-[rgba(0,122,255,0.18)] transition-colors duration-200 cursor-pointer"),children:"éæ°å è½½"}
+
+##### skillSlugs
+--- off 2288136
+0 cursor-pointer",children:w.jsx(CheckBox,{
+checked:s}
+)}
+),w.jsxs("div",{
+className:"flex-1 min-w-0 flex flex-col gap-2",children:[w.jsx("div",{
+className:"flex items-center justify-between",children:w.jsx("div",{
+className:"flex items-center gap-2",children:w.jsx(We,{
+href:`${
+h}
+/${
+a.slug}
+`,"dt-eid":"selector-pkg-detail-link","dt-remark":`pkg=${
+a.slug}
+`,onClick:a=>{
+a.stopPropagation()}
+,className:"text-base font-medium leading-[1.5em] text-black hover:underline no-underline",children:a.displayName}
+)}
+)}
+),w.jsx("p",{
+className:"line-clamp-2 min-h-[44px] text-[13px] font-light leading-[1.69em] text-[rgba(0,0,0,0.6)] [word-break:break-word]",title:m,children:m}
+),w.jsx(SkillSlugPills,{
+slugs:a.skills??(a.skillSlugs??[]).map(a=>({
+slug:a,namespace:null}
+))}
+)]}
+)]}
+)}
+const oH={
+scrollTop:0,pendingRestore:!1}
+;
+function SkillPackageList({
+skillSets:a,loading:s,loadingMore:c,error:u,onRetry:p,selectedSlugs:h,onToggle:m,hasMore:k,onLoadMore:N,detailBasePath:E="/hermes/skill",emptyText:T="ææ æè½å",selectable:O=!0}
+){
+const F=E.endsWith("/")?E.slice(0,-1):E,L=`${
+F}
+/`,B=Q.useRef(null),H=Q.useRef(!1),U=Q.useRef(k),z=Q.useRef(c),q=Q.useRef(N);
+Q.useEffect(()=>{
+U.current=k}
+,[k]),Q.useEffect(()=>{
+z.current=c}
+,[c]),Q.useEffect(()=>{
+q.current=N}
+,[N]);
+const W=Q.useCallback(()=>{
+const a=B.current;
+if(!a)return;
+if(!U.current||z.current)return;
+const{
+scrollTop:s,scrollHeight:c,clientHeight:u}
+=a;
+c-s-u<=100&&q.current()}
+,[]),Y=Q.useCallback(a=>{
+const s=a.target;
+if(!s)return;
+const c=s.closest("a");
+if(!c)return;
+const u=c.getAttribute("href");
+if(!u?.startsWith(L))return;
+const p=B.current;
+p&&(oH.scrollTop=p.scrollTop,oH.pendingRestore=!0,function markSkillSetsPendingRestore(){
+sH.pendingRestore=!0}
+())}
+,[L]),X=Q.use
+--- off 2292532
+."]}
+)}
+),!k&&a.length>0&&w.jsx("div",{
+className:"text-center py-4 text-xs text-[rgba(0,0,0,0.3)]",children:"å·²å è½½å¨é¨"}
+)]}
+)}
+function CloseIcon(){
+return w.jsxs("svg",{
+width:"16",height:"16",viewBox:"0 0 16 16",fill:"none",className:"shrink-0",children:[w.jsx("circle",{
+cx:"8",cy:"8",r:"6.67",fill:"rgba(0,0,0,0.2)"}
+),w.jsx("path",{
+d:"M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5",stroke:"white",strokeWidth:"1.2",strokeLinecap:"round"}
+)]}
+)}
+function SelectedSkillItem({
+slug:a,skillSet:s,onRemove:c}
+){
+const[u,p]=Q.useState(null);
+Q.useEffect(()=>{
+s||fetchSkillSetDetail(a).then(p).catch(()=>{
+}
+)}
+,[a,s]);
+const h=Q.useCallback(()=>{
+c(a)}
+,[a,c]),m=s?.displayName??u?.displayName??a,k=s?.skills??u?.skills??(s?.skillSlugs??u?.skillSlugs??[]).map(a=>({
+slug:a,namespace:null}
+));
+return w.jsxs("div",{
+className:"flex items-start justify-between gap-2",children:[w.jsxs("div",{
+className:"flex flex-col gap-2 min-w-0",children:[w.jsx("div",{
+className:"flex items-center gap-2",children:w.jsx(We,{
+href:`/hermes/skill/${
+a}
+`,"dt-eid":"selector-selected-detail-link","dt-remark":`pkg=${
+a}
+`,className:"text-sm font-medium leading-[1.71em] text-black truncate hover:underline transition-all cursor-pointer",children:m}
+)}
+),w.jsx(SkillSlugPills,{
+slugs:k,className:"flex-wrap"}
+)]}
+),w.jsx("button",{
+"dt-eid":"selector-selected-remove-btn","dt-remark":`pkg=${
+a}
+`,onClick:h,className:"shrink-0 mt-1 cursor-pointer hover:opacity-70 transition-opacity duration-200","aria-label":`ç§»é¤ ${
+m}
+`,children:w.jsx(CloseIcon,{
+}
+)}
+)]}
+)}
+function SelectedPanel({
+soul:a,selectedSlugs:s,selectedSkillSetsMap:c,onRemove:u}
+){
+const p=s.length;
+return w.jsxs("div",{
+className:"flex flex-col gap-[34px]",children:[w.jsxs("div",{
+className:"flex flex-c
+--- off 2292547
+ength>0&&w.jsx("div",{
+className:"text-center py-4 text-xs text-[rgba(0,0,0,0.3)]",children:"å·²å è½½å¨é¨"}
+)]}
+)}
+function CloseIcon(){
+return w.jsxs("svg",{
+width:"16",height:"16",viewBox:"0 0 16 16",fill:"none",className:"shrink-0",children:[w.jsx("circle",{
+cx:"8",cy:"8",r:"6.67",fill:"rgba(0,0,0,0.2)"}
+),w.jsx("path",{
+d:"M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5",stroke:"white",strokeWidth:"1.2",strokeLinecap:"round"}
+)]}
+)}
+function SelectedSkillItem({
+slug:a,skillSet:s,onRemove:c}
+){
+const[u,p]=Q.useState(null);
+Q.useEffect(()=>{
+s||fetchSkillSetDetail(a).then(p).catch(()=>{
+}
+)}
+,[a,s]);
+const h=Q.useCallback(()=>{
+c(a)}
+,[a,c]),m=s?.displayName??u?.displayName??a,k=s?.skills??u?.skills??(s?.skillSlugs??u?.skillSlugs??[]).map(a=>({
+slug:a,namespace:null}
+));
+return w.jsxs("div",{
+className:"flex items-start justify-between gap-2",children:[w.jsxs("div",{
+className:"flex flex-col gap-2 min-w-0",children:[w.jsx("div",{
+className:"flex items-center gap-2",children:w.jsx(We,{
+href:`/hermes/skill/${
+a}
+`,"dt-eid":"selector-selected-detail-link","dt-remark":`pkg=${
+a}
+`,className:"text-sm font-medium leading-[1.71em] text-black truncate hover:underline transition-all cursor-pointer",children:m}
+)}
+),w.jsx(SkillSlugPills,{
+slugs:k,className:"flex-wrap"}
+)]}
+),w.jsx("button",{
+"dt-eid":"selector-selected-remove-btn","dt-remark":`pkg=${
+a}
+`,onClick:h,className:"shrink-0 mt-1 cursor-pointer hover:opacity-70 transition-opacity duration-200","aria-label":`ç§»é¤ ${
+m}
+`,children:w.jsx(CloseIcon,{
+}
+)}
+)]}
+)}
+function SelectedPanel({
+soul:a,selectedSlugs:s,selectedSkillSetsMap:c,onRemove:u}
+){
+const p=s.length;
+return w.jsxs("div",{
+className:"flex flex-col gap-[34px]",children:[w.jsxs("div",{
+className:"flex flex-col gap-6",child
+--- off 2316721
+6825 1.33325 8.00065C1.33325 4.54375 3.96437 1.70138 7.33325 1.3669ZM13.3333 3.61012L7.99992 8.94345L7.05712 8.00065L12.3905 2.66732H9.33325V1.33398H14.6666V6.66732H13.3333V3.61012Z",fill:"black"}
+)}
+),"åäº«"]}
+)]}
+)]}
+)]}
+)}
+function SkillPackageSection({
+skillSetSlugs:a,hideTitle:s}
+){
+const[c,u]=Q.useState([]),[p,h]=Q.useState(!0),[m,k]=Q.useState(0),N=Q.useRef(!1),E=useIsMobile(),T=Q.useCallback(async()=>{
+if(!a.length)return u([]),void h(!1);
+N.current=!1,h(!0);
+try{
+const s=await Promise.all(a.map(a=>fetchSkillSetDetail(a).catch(()=>null)));
+if(N.current)return;
+const c=[];
+for(const a of s)if(a)try{
+const s=a.skills&&a.skills.length>0?a.skills.map(a=>({
+slug:a.slug,namespace:a.namespace??void 0}
+)):(a.skillSlugs??[]).map(a=>({
+slug:a}
+));
+if(0===s.length)continue;
+const u=await fetchSkillsBatch({
+skills:s}
+),p=new Set((u.items||[]).map(a=>{
+const s=a.skill.namespace?.handle;
+return s?`@${
+s}
+/${
+a.skill.slug}
+`:a.skill.slug}
+));
+s.every(a=>{
+const s=a.namespace?`@${
+a.namespace}
+/${
+a.slug}
+`:a.slug;
+return p.has(s)}
+)&&c.push({
+detail:a,skills:u.items||[]}
+)}
+catch{
+}
+N.current||u(c)}
+catch{
+}
+finally{
+N.current||h(!1)}
+}
+,[a.join(",")]);
+if(Q.useEffect(()=>(T(),()=>{
+N.current=!0}
+),[T]),p)return w.jsxs("section",{
+children:[!s&&w.jsx("h2",{
+className:"text-base font-medium text-[rgba(0,0,0,0.9)] mb-4 md:mb-6",children:"æéç½®çæè½å"}
+),w.jsx("div",{
+className:cn$2("flex gap-4",E?"flex-col":"gap-5"),children:[0,1].map(a=>w.jsxs("div",{
+className:cn$2("bg-white border border-[rgba(0,0,0,0.08)] rounded-lg animate-pulse",E?"p-4":"flex-1 p-6"),children:[w.jsx("div",{
+className:"h-4 bg-[#F2F2F2] rounded w-24 mb-4"}
+),w.jsx("div",{
+className:"h-3 bg-[#F2F2F2] rounded w-full mb-2"}
+),w.jsx("div",{
+className:"h-3 bg-[#F2F2F
