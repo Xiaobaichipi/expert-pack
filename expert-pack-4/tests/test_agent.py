@@ -100,6 +100,14 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(result.trajectory.steps[0].observation.ok)
         self.assertIn("missing required arguments", model.calls[1][-1].content)
 
+    def test_comparison_prompt_is_injected_for_compare_tasks(self) -> None:
+        model = ScriptedModel(['{"candidates":[{"action":"answer","arguments":{"answer":"1"}}]}'])
+        agent = build_agent(model=model, config=AgentConfig(max_steps=1))
+        agent.solve(Task(id="t", goal="查询哪台主变负载率最高", max_steps=1))
+        prompt = model.calls[0][-1].content
+        self.assertIn("COMPARISON REQUIRED", prompt)
+        self.assertIn("retrieve ALL candidate rows", prompt)
+
     def test_suggested_actions_are_enforced(self) -> None:
         model = ScriptedModel(
             [

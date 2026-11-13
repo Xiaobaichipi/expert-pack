@@ -23,6 +23,11 @@ FAMILY_MAX_STEPS = {
     "reliability_availability": 6,
     "topology_source": 5,
     "maintenance_plan": 5,
+    "capacity_max": 5,
+    "defect_presence": 4,
+    "reliability_threshold": 4,
+    "highest_model": 6,
+    "global_rank": 6,
 }
 
 #: 意图 → 建议工具（候选人提示，也用于可选的白名单约束）

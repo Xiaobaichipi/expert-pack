@@ -13,6 +13,7 @@
 > P3-真实分布状态：**已完成异构模拟数据**（6 个异构站/33 题，见「十七、P3-异构真实分布模拟」）。
 > P3-复杂任务状态：**已完成复杂任务模拟**（26 题多步/判断/比较，见「十八、P3-复杂任务与步进 RL 状态」）。
 > P3-候选生成增强状态：**已完成**（意图工具提示 + 强制白名单，见「十九、候选生成增强」）。
+> P3-比较引导状态：**已实现**（系统/动态比较约束 + 任务步数补齐，真实模型复测受账号配额限制，见「二十、比较引导」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -689,4 +690,32 @@ python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
 python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
   --enforce-hints --memory-min-neighbors 2 --memory-min-similarity 0.8 \
   --memory-max-return-std 0.5 --out runs/p3-complex-hints
+```
+
+## 二十、比较引导（2026-11-13）
+
+### 20.1 实现
+
+在候选生成增强的基础上，针对剩余“比较/判断错误”增加两层约束：
+
+1. **系统级规则**（`agent._SYSTEM`）：凡是“最高/最低/阈值/是否大于/小于”的任务，
+   必须先取回所有候选记录，比较后再回答，不允许看一行就下结论。
+2. **动态提示**（`agent._render_prompt`）：检测到 goal 含比较关键词时追加
+   `COMPARISON REQUIRED`，明确要求先列全候选、比较 `loadRate/availabilityRate/defectLevel`。
+
+同时把复杂任务族的 `max_steps` 补齐：`highest_model=6`、`global_rank=6`、`capacity_max=5`，
+`defect_presence/reliability_threshold=4`；单测验证 `COMPARISON REQUIRED` 注入。
+
+### 20.2 复测状态
+
+真实模型 26 题复测在任务 8/26 处被 **ARK 账号月度配额（HTTP 429）中断**，未得到完整结果。
+代码与单测已完成（`tests/test_agent.py` 的 `test_comparison_prompt_is_injected_for_compare_tasks`）；
+完整 A/B 结果需等 2026-11-17 配额重置后重跑。
+
+### 20.3 运行方式
+
+```powershell
+python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
+  --enforce-hints --memory-min-neighbors 2 --memory-min-similarity 0.8 \
+  --memory-max-return-std 0.5 --out runs/p3-complex-compare
 ```

@@ -89,6 +89,12 @@ At every step:
    is handled by the runtime; you only need to propose what you believe in.
 4. Set confidence as your prior belief BEFORE memory evidence. The runtime adds
    the memory-derived advantage to it.
+5. When the task asks for a comparison (highest / lowest / maximum / minimum /
+   threshold / whether X is greater/lower than Y), you MUST:
+   a) retrieve every relevant candidate record first (do not answer after seeing
+      only one row);
+   b) compare their key fields explicitly;
+   c) only then answer. Never guess from a single row.
 
 Return ONLY a JSON object:
 {"thought": "one sentence",
@@ -496,6 +502,20 @@ class ExpertAgent:
             lines.append(f"- {action['action_id']} — {action['description'][:90]}{suffix}")
         lines.append("")
         lines.append("* = required. Do not invent parameter names outside 'params'.")
+        goal_lower = (task.goal or "").lower()
+        compare_markers = (
+            "最高", "最低", "最大", "最小", "高于", "低于", "是否低", "是否高",
+            "比较", "对比", "top", "highest", "lowest", "max", "min",
+        )
+        if any(marker in goal_lower for marker in compare_markers):
+            lines.append("")
+            lines.append("COMPARISON REQUIRED:")
+            lines.append(
+                "- This task requires a comparison. First retrieve ALL candidate rows with the "
+                "appropriate tool (e.g. query_open_capacity / query_station_scale_analysis), "
+                "compare their key fields (loadRate / availabilityRate / defectLevel), "
+                "and only then answer. Do NOT answer after seeing only one row."
+            )
         lines.append("Return the JSON object now.")
         return "\n".join(lines)
 
