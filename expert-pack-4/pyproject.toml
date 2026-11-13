@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "expert-pack"
+version = "0.1.0"
+description = "A slot-based Skills + MCP agent with JitRL-style test-time policy optimization"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "expert-pack" }]
+dependencies = []
+
+[project.optional-dependencies]
+# Deliberately empty: the core runs on the Python standard library only.
+# Add adapters as extras if you want them, but do not force them on users.
+dev = []
+
+[project.scripts]
+expert-pack = "expert_pack.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["expert_pack*"]
+
+[tool.setuptools.package-data]
+expert_pack = ["builtin/skills/*/SKILL.md"]

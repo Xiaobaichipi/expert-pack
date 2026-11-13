@@ -1,0 +1,12 @@
+SLOT        STATUS   QUALITY     REQ  CONTRACT         BINDING          
+----------  -------  ----------  ---  ---------------  -----------------
+model       builtin  stub        yes  ModelBackend     builtin:unbound  
+tools       open     -           no   ToolProvider     -                
+skills      open     -           no   Skill            -                
+store       builtin  production  no   ExperienceStore  builtin:sqlite   
+retriever   builtin  production  no   Retriever        builtin:jaccard  
+abstractor  builtin  production  no   StateAbstractor  builtin:default  
+policy      builtin  production  no   PolicyShaper     builtin:jitrl    
+evaluator   builtin  demo        no   Evaluator        builtin:heuristic
+
+2 vacancy(ies); strict FAIL

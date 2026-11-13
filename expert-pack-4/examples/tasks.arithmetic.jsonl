@@ -1,0 +1,3 @@
+{"id":"arith-1","goal":"What is alpha multiplied by 3? Answer with the number only.","success_criteria":"Return the numeric result.","family":"arithmetic-retrieval","max_steps":4,"context":{"expect":"126","item":"alpha"}}
+{"id":"arith-2","goal":"What is beta multiplied by 3? Answer with the number only.","success_criteria":"Return the numeric result.","family":"arithmetic-retrieval","max_steps":4,"context":{"expect":"51","item":"beta"}}
+{"id":"arith-3","goal":"What is alpha multiplied by 3? Answer with the number only.","success_criteria":"Return the numeric result.","family":"arithmetic-retrieval","max_steps":4,"context":{"expect":"126","item":"alpha"}}

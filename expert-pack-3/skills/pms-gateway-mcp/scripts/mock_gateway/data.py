@@ -1720,3 +1720,23 @@ def summarize() -> dict[str, Any]:
         "instruments": len(INSTRUMENTS),
         "manufacturers": len(MANUFACTURERS),
     }
+
+# ---------------------------------------------------------------------------
+# 可选扩展数据集（P2/P3 压力测试用；默认数据集不受影响）
+# ---------------------------------------------------------------------------
+def _load_extended_dataset() -> None:
+    import os
+    import sys
+
+    dataset = os.environ.get("PMS_MOCK_DATASET", "").strip().lower()
+    if dataset == "extended":
+        from . import data_extended
+
+        data_extended.extend(sys.modules[__name__])
+    elif dataset == "realistic":
+        from . import data_realistic
+
+        data_realistic.extend(sys.modules[__name__])
+
+
+_load_extended_dataset()

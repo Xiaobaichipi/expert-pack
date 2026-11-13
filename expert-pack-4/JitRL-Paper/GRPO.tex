@@ -1,0 +1,42 @@
+
+
+% \section{Preliminaries: Standard Reinforcement Learning}
+% \label{subsec:preliminaries}
+
+% Reinforcement Learning aims to optimize a policy $\pi_{\theta}$ to maximize the expected cumulative reward $J(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta}}[R(\tau)]$, where $R(\tau)$ is the cumulative reward of trajectory $\tau$. A standard approach to optimize this objective is the Policy Gradient method \citep{reinforce, policy-gradient}, which updates parameters in the direction of the gradient:
+
+% \begin{equation}
+%     \nabla_{\theta} J(\theta) = \mathbb{E}_{s,a \sim \pi_{\theta}} [\nabla_{\theta} \log \pi_{\theta}(a|s) \cdot A(s,a)]
+%     \label{eq:policy_gradient}
+% \end{equation}
+
+% where $A(a,s)$ is the advantage function, formulated as: 
+
+% \begin{equation}
+%     A(s,a) = Q(s,a) - V(s),
+%     \label{eq:advantage_def}
+% \end{equation}
+
+% quantifying under the state $s$, how much better the performance of a specific action $Q(s,a)$ is compared to the average performance $V(s)$. 
+
+% In standard Actor-Critic architectures, obtaining $Q(s,a)$ and $V(s)$ typically relies on training parameterized value networks, which is computationally expensive and yields a static model.
+
+
+\section{Preliminaries}
+\label{subsec:preliminaries}
+
+Reinforcement Learning (RL) aims to optimize a policy $\pi_{\theta}$, which maps a given state to a probability distribution over actions, to maximize the expected cumulative reward. The objective function is defined as $J(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta}}[R(\tau)]$, where $\tau = (s_0, a_0, r_0, s_1,a_1,r_1\dots, s_n, a_n,r_n)$ represents a trajectory of $n$ interactions, and $R(\tau)$ denotes the cumulative discounted return of that trajectory. 
+
+A fundamental approach to optimize this objective is the Policy Gradient method \citep{reinforce, policy-gradient}. Intuitively, this method shifts the probability mass towards actions that yield higher returns by updating parameters in the direction of the gradient:
+\begin{equation}
+    \nabla_{\theta} J(\theta) = \mathbb{E}_{s,a \sim \pi_{\theta}} [\nabla_{\theta} \log \pi_{\theta}(a|s) \cdot A(s,a)],
+    \label{eq:policy_gradient}
+\end{equation}
+where $A(s,a)$ is the \textbf{advantage function}. The advantage function serves as a critic to evaluate the selected action relative to a baseline, formulated as:
+\begin{equation}
+    A(s,a) = Q(s,a) - V(s).
+    \label{eq:advantage_def}
+\end{equation}
+Here, $Q(s,a)$ is the \textbf{action-value function}, representing the expected return of taking action $a$ in state $s$, while $V(s)$ is the \textbf{state-value function}, representing the average expected return of being in state $s$. Thus, $A(s,a)$ quantifies \textit{how much better} a specific action is compared to the average performance of the policy in that state.
+
+Reinforcement Learning typically requires the training of additional value networks to estimate the advantage. This process is computationally expensive and results in a static model that lacks the flexibility to adapt at test time.

@@ -1,0 +1,120 @@
+% \begin{algorithm}[tb]
+%     \caption{JitRL: Test-Time Policy Optimization}
+%     \label{alg:jitrl}
+%  \begin{algorithmic}
+%     \STATE {\bfseries Input:} State $s$, Memory $\mathcal{M}$, LLM $\pi_\theta$, hyperparameters $k, \beta, \lambda, \alpha$
+%     \STATE {\bfseries Output:} Action $a$
+
+%     \STATE \textcolor{blue}{\textit{// Step 1: Retrieve similar experiences}}
+%     \STATE $\mathcal{N}(s) \leftarrow$ Top-k neighbors from $\mathcal{M}$ by Jaccard$(s, si)$
+
+%     \STATE \textcolor{blue}{\textit{// Step 2: Estimate state value (baseline)}}
+%     \STATE $V(s) \leftarrow \frac{1}{|\mathcal{N}(s)|}\sum_{(s_i, a_i, G_i) \in \mathcal{N}(s)} G_i$
+
+%     \STATE \textcolor{blue}{\textit{// Step 3: Construct augmented candidate set}}
+%     \STATE Get LLM candidates $\mathcal{C}_{\text{LLM}}$ with logits $z(a,s)$
+%     \STATE $\mathcal{A}_{\text{mem}} \leftarrow \{a_i : (s_i, a_i, G_i) \in \mathcal{N}(s)\}$
+%     \STATE $\mathcal{C} \leftarrow \mathcal{C}_{\text{LLM}} \cup \mathcal{A}_{\text{mem}}$
+%     \FOR{$a \in \mathcal{A}_{\text{mem}} \setminus \mathcal{C}_{\text{LLM}}$}
+%         \STATE $z(s,a) \leftarrow 0$ \hfill \textcolor{gray}{\textit{// Initialize logit for memory-only actions}}
+%     \ENDFOR
+
+%     \STATE \textcolor{blue}{\textit{// Step 4: Estimate Q-value for each candidate}}
+%     \FOR{$a \in \mathcal{C}$}
+%         \STATE $\mathcal{N}(s, a) \leftarrow \{(s_i, a_i, G_i) \in \mathcal{N}(s) : a_i = a\}$
+%         \IF{$|\mathcal{N}(s, a)| > 0$}
+%             \STATE $Q(s,a) \leftarrow \frac{1}{|\mathcal{N}(s,a)|}\sum_{(s_i, a_i, G_i) \in \mathcal{N}(s,a)} G_i$ \hfill \textcolor{gray}{\textit{// Known action}}
+%         \ELSE
+%             \IF{$\text{rand}() < \lambda$}
+%                 \STATE $Q(s,a) \leftarrow V(s) + \alpha / |\mathcal{N}(s)|$ \hfill \textcolor{gray}{\textit{// Exploration bonus}}
+%             \ELSE
+%                 \STATE $Q(s,a) \leftarrow 0$ \hfill \textcolor{gray}{\textit{// Neutral value}}
+%             \ENDIF
+%         \ENDIF
+%     \ENDFOR
+
+%     \STATE \textcolor{blue}{\textit{// Step 5: Compute normalized advantage}}
+%     \FOR{$a \in \mathcal{C}$}
+%         \STATE $A(s,a) \leftarrow Q(s,a) - V(s)$
+%     \ENDFOR
+%     \STATE $A_{\max} \leftarrow \max_{a' \in \mathcal{C}}|A(s,a')| + \epsilon$
+%     \FOR{$a \in \mathcal{C}$}
+%         \STATE $\tilde{A}(s,a) \leftarrow A(s,a) / A_{\max}$
+%     \ENDFOR
+
+%     \STATE \textcolor{blue}{\textit{// Step 6: Closed-form policy update}}
+%     \FOR{$a \in \mathcal{C}$}
+%         \STATE $z'(s,a) \leftarrow z(s,a) + \beta \cdot \tilde{A}(s,a)$
+%     \ENDFOR
+
+%     \STATE \textbf{Return} Sample from $\text{Softmax}(z'(\cdot, s))$
+%  \end{algorithmic}
+%  \end{algorithm}
+
+
+\begin{algorithm}[h]
+    \caption{JitRL: Test-Time Policy Optimization}
+    \label{alg:jitrl}
+ \begin{algorithmic}
+    \STATE {\bfseries Input:} LLM $\pi_\theta$, hyperparameters $k, \beta, \lambda, \alpha, \gamma$
+    \STATE {\bfseries Initialize:} Memory $\mathcal{M} \leftarrow \emptyset$
+
+    \FOR{each episode}
+        \STATE Initialize trajectory $\tau \leftarrow []$
+        \WHILE{episode not done}
+            \STATE Observe state $o$; abstract to $s \leftarrow \text{AbstractState}(o)$
+
+            \STATE \textcolor{blue}{\textit{// Step 1: Retrieve similar experiences}}
+            \STATE $\mathcal{N}(s) \leftarrow$ Top-$k$ neighbors from $\mathcal{M}$ by Jaccard$(s, s_i)$
+
+            \STATE \textcolor{blue}{\textit{// Step 2: Estimate state value (baseline)}}
+            \STATE $V(s) \leftarrow \frac{1}{|\mathcal{N}(s)|}\sum_{(s_i, a_i, G_i) \in \mathcal{N}(s)} G_i$
+
+            \STATE \textcolor{blue}{\textit{// Step 3: Construct augmented candidate set}}
+            \STATE Get LLM candidates $\mathcal{C}_{\text{LLM}}$ with logits $z(s,a)$
+
+            \STATE $\mathcal{C} \leftarrow \mathcal{C}_{LLM} \cup \{ a_i : (s_i, a_i, G_i) \in \mathcal{N}(s) \}$.
+            \FOR{$a \in \mathcal{C} \setminus \mathcal{C}_{\text{LLM}}$}
+                \STATE $z(s,a) \leftarrow 0$ \hfill \textcolor{gray}{\textit{// Initialize logit for memory-only actions}}
+            \ENDFOR
+
+            \STATE \textcolor{blue}{\textit{// Step 4: Estimate value for each candidate}}
+            \FOR{$a \in \mathcal{C}$}
+                \STATE $\mathcal{N}(s, a) \leftarrow \{(s_i, a_i, G_i) \in \mathcal{N}(s) : a_i = a\}$
+                \IF{$|\mathcal{N}(s, a)| > 0$}
+                    \STATE $Q(s,a) \leftarrow \frac{1}{|\mathcal{N}(s,a)|}\sum_{(s_i, a_i, G_i) \in \mathcal{N}(s,a)} G_i$ \hfill \textcolor{gray}{\textit{// Known action}}
+                \ELSE
+                    \IF{$\text{rand}() < \lambda$}
+                        \STATE $Q(s,a) \leftarrow V(s) + \alpha / |\mathcal{N}(s)|$ \hfill \textcolor{gray}{\textit{// Exploration bonus}}
+                    \ELSE
+                        \STATE $Q(s,a) \leftarrow 0$ \hfill \textcolor{gray}{\textit{// Neutral value}}
+                    \ENDIF
+                \ENDIF
+            \ENDFOR
+
+            \STATE \textcolor{blue}{\textit{// Step 5: Compute normalized advantage}}
+            \FOR{$a \in \mathcal{C}$}
+                \STATE $A(s,a) \leftarrow Q(s,a) - V(s)$
+            \ENDFOR
+            \STATE $A_{\max} \leftarrow \max_{a' \in \mathcal{C}}|A(s,a')| + \epsilon$
+            \FOR{$a \in \mathcal{C}$}
+                \STATE $\tilde{A}(s,a) \leftarrow A(s,a) / (A_{\max}+\epsilon)$
+            \ENDFOR
+
+            \STATE \textcolor{blue}{\textit{// Step 6: Closed-form policy update}}
+            \FOR{$a \in \mathcal{C}$}
+                \STATE $z'(s,a) \leftarrow z(s,a) + \beta \cdot \tilde{A}(s,a)$
+            \ENDFOR
+
+            \STATE Sample $a \sim \text{Softmax}(z')$; append $(s, a)$ to $\tau$
+        \ENDWHILE
+
+        \STATE \textcolor{blue}{\textit{// Step 7: Memory update after episode ends}}
+        \STATE $\{r_t\}_{t=0}^{T} \leftarrow \text{Evaluator}(\tau)$
+        \FOR{$t = 0$ \textbf{to} $T$}
+            \STATE $G_t \leftarrow \sum_{u=t}^{T} \gamma^{u-t} r_u$
+            \STATE $\mathcal{M} \leftarrow \mathcal{M} \cup \{(s_t, a_t, G_t)\}$
+        \ENDFOR
+    \ENDFOR
+ \end{algorithmic}
+ \end{algorithm}

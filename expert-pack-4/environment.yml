@@ -1,0 +1,9 @@
+# JitRL / expert-pack 运行环境（核心零第三方依赖，仅锁定 Python 版本）
+# 创建：conda env create -f environment.yml
+# 国内镜像：conda create -n jitrl python=3.12 \
+#   --override-channels -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+name: jitrl
+channels:
+  - defaults
+dependencies:
+  - python=3.12

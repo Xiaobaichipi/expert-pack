@@ -1,0 +1,104 @@
+{
+  "ok": false,
+  "strict_problems": [
+    "model: required slot holds a stub binding"
+  ],
+  "slots": [
+    {
+      "slot": "model",
+      "contract": "ModelBackend",
+      "required": true,
+      "multi": false,
+      "status": "builtin",
+      "quality": "stub",
+      "binding": "builtin:unbound",
+      "description": "The reasoning backend that proposes candidate actions.",
+      "hint": "Bind an OpenAI-compatible endpoint, a local model, or a domain-specific planner.",
+      "problems": []
+    },
+    {
+      "slot": "tools",
+      "contract": "ToolProvider",
+      "required": false,
+      "multi": true,
+      "status": "open",
+      "quality": "-",
+      "binding": "-",
+      "description": "Tool providers: MCP servers or local Python providers.",
+      "hint": "Add {\"slot\":\"tools\",\"type\":\"mcp_stdio\",\"target\":\"<name>\",\"config\":{...}} per server.",
+      "problems": []
+    },
+    {
+      "slot": "skills",
+      "contract": "Skill",
+      "required": false,
+      "multi": true,
+      "status": "open",
+      "quality": "-",
+      "binding": "-",
+      "description": "Skills the agent may select as actions or load as instructions.",
+      "hint": "Bind {\"type\":\"skill_dir\",\"target\":\"skills\"} or a Python module exposing skills.",
+      "problems": []
+    },
+    {
+      "slot": "store",
+      "contract": "ExperienceStore",
+      "required": false,
+      "multi": false,
+      "status": "builtin",
+      "quality": "production",
+      "binding": "builtin:sqlite",
+      "description": "The non-parametric experience memory (state, action, return).",
+      "hint": "Replace with a vector store or a shared database; the interface is four methods.",
+      "problems": []
+    },
+    {
+      "slot": "retriever",
+      "contract": "Retriever",
+      "required": false,
+      "multi": false,
+      "status": "builtin",
+      "quality": "production",
+      "binding": "builtin:jaccard",
+      "description": "Finds the neighbourhood N(s) used to estimate V and Q.",
+      "hint": "Replace Jaccard with embeddings; keep exact-key transfer if you can.",
+      "problems": []
+    },
+    {
+      "slot": "abstractor",
+      "contract": "StateAbstractor",
+      "required": false,
+      "multi": false,
+      "status": "builtin",
+      "quality": "production",
+      "binding": "builtin:default",
+      "description": "Maps an observation to a retrievable state (normalisation is the transfer mechanism).",
+      "hint": "Give it task-specific facets so equivalent situations collide.",
+      "problems": []
+    },
+    {
+      "slot": "policy",
+      "contract": "PolicyShaper",
+      "required": false,
+      "multi": false,
+      "status": "builtin",
+      "quality": "production",
+      "binding": "builtin:jitrl",
+      "description": "Turns candidate priors plus advantage estimates into one decision.",
+      "hint": "JitRL is the default; ablate it with a prior-only policy.",
+      "problems": []
+    },
+    {
+      "slot": "evaluator",
+      "contract": "Evaluator",
+      "required": false,
+      "multi": false,
+      "status": "builtin",
+      "quality": "demo",
+      "binding": "builtin:heuristic",
+      "description": "Assigns dense step rewards and a success flag after each episode.",
+      "hint": "Bind an LLM evaluator for credit assignment on open tasks.",
+      "problems": []
+    }
+  ]
+}

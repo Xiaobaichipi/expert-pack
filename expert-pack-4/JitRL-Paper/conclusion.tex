@@ -1,0 +1,37 @@
+\section{Conclusion}
+
+
+In this work, we propose Just-In-Time Reinforcement Learning (JitRL), a training-free framework that enables frozen LLMs to continuously adapt at test time by directly optimizing logits. We theoretically prove that our update rule is the optimal closed-form solution for RL policy optimization. 
+Experimental results show that JitRL not only outperforms existing training-free methods but also outperforms expensive weight-update baselines, while reducing monetary costs by over 30$\times$, offering a scalable and efficient path for agentic continuous learning.
+
+
+
+\section*{Limitations}
+
+Despite its strong empirical performance, JitRL has several limitations that point to directions for future work.
+
+\textbf{Dependence on the frozen base model.} JitRL re-weights actions over the candidate set proposed by the base model; it cannot discover actions that the base model would never generate. Furthermore, JitRL relies on an LLM evaluator to produce accurate step-wise rewards — if the evaluator misattributes credit, the resulting advantage estimates will be inaccurate and may degrade policy quality.
+
+\textbf{Less suited for tasks where key information is hard to represent in text.} JitRL's state representation and retrieval operate on text, so for tasks where critical patterns are difficult to express textually — such as spatial reasoning (e.g., chess board positions) or time-series forecasting — text-based retrieval may fail to capture the relevant similarity between states, limiting the effectiveness of memory-based value estimation.
+
+
+
+\section*{Impact Statement}
+
+By eliminating gradient-based updates, JitRL reduces the cost of continual agent learning by over 30$\times$, making adaptive agents accessible without large-scale GPU infrastructure. However, the memory bank stores real interaction trajectories, which may inadvertently capture sensitive user information in real-world deployments.
+
+
+\section*{Acknowledgement}
+
+This research is supported by the Ministry of Education, Singapore, under the Academic Research Fund Tier 2 (FY2025) (Grant T2EP20124-0038). Computational work involved in this
+research work is partially supported by NUS IT’s Research Computing group
+under grant number NUSREC-HPC-00001.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IMPACT STATEMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section*{Impact Statement}
+
+% A positive impact of JitRL is its efficiency. By avoiding gradient-based fine-tuning and parameter updates, JitRL reduces monetary and computational costs by over 50$\times$ compared to conventional RL methods. This democratization of AI development allows researchers with limited computational resources to develop self-evolving agents.
+
+% Conversely, the reliance on a dynamic, non-parametric memory bank—which stores historical trajectories as $\langle\text{state, action, reward}\rangle$ triplets—introduces potential privacy risks. In real-world deployments, such as the web navigation tasks in WebArena, this memory might inadvertently store sensitive user information or Private Identifiable Information (PII) contained within HTML DOM trees or interaction histories. We encourage practitioners to implement robust data anonymization and filtering protocols before committing trajectories to the long-term memory to prevent privacy leakage during retrieval-based inference.

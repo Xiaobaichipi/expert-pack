@@ -1,0 +1,45 @@
+% \begin{table}[htbp]
+%     \centering
+%     \caption{Zero-Shot Generalization to Unseen Tasks. We report the success rate (\%) where the agent is restricted to retrieving memories exclusively from disjoint tasks.}
+%     \label{tab:first_run_comparison}
+%     \small
+%     \begin{tabular}{lcccccc}
+%     \toprule
+%     Method & Admin & GitLab & Map & Reddit & Shopping & \textbf{Overall} \\
+%     \midrule
+%     Static & 36.96 & 37.25 & 31.19 & 36.43 & 23.44 & 33.01 \\
+%     Memory & 47.83 & 37.75 & 33.03 & 50.39 & 26.04 & 38.63 \\
+%     Reflexion & 46.74 & 34.80 & 31.19 & 48.84 & 31.77 & 38.51 \\
+%     AWM & 47.28 & 36.27 & 34.86 & 53.49 & 23.44 & 38.26 \\
+%     EvoTest & 43.48 & 35.78 & 34.86 & 49.61 & 18.75 & 35.57 \\
+%     \midrule
+%     \textbf{JitRL} & \textbf{48.37} & \textbf{38.73} & \textbf{35.78} & \textbf{55.04} & \textbf{36.98} & \textbf{42.67} \\
+%     \bottomrule
+%     \end{tabular}
+% \end{table}
+
+
+\begin{table}[t]
+  \caption{Generalization to Unseen Tasks. We report the average success rate (\%) where the agent is restricted to retrieving memories exclusively from disjoint tasks.}
+  \label{tab:first_run_comparison}
+  \begin{center}
+    \begin{small}
+      \begin{adjustbox}{width=\columnwidth}
+      \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Method} & \textbf{Admin} & \textbf{GitLab} & \textbf{Map} & \textbf{Reddit} & \textbf{Shopping} \\
+        \midrule
+        Static & 36.96 & 37.25 & 31.19 & 36.43 & 23.44 \\
+        Memory & 47.83 & 37.75 & 33.03 & 50.39 & 26.04 \\
+        Reflexion & 46.74 & 34.80 & 31.19 & 48.84 & 31.77 \\
+        AWM & 47.28 & 36.27 & 34.86 & 52.71 & 23.44 \\
+        EvoTest & 43.48 & 35.78 & 34.86 & 48.06 & 18.75 \\
+        \midrule
+        \textbf{JitRL} & \textbf{48.37} & \textbf{38.73} & \textbf{35.78} & \textbf{55.04} & \textbf{36.98} \\
+        \bottomrule
+      \end{tabular}
+      \end{adjustbox}
+    \end{small}
+  \end{center}
+\end{table}
+

@@ -1,0 +1,33 @@
+\begin{table*}[t]
+    \centering
+    \caption{\textbf{Qualitative Analysis of Policy Improvement on Jericho.} We select one representative case from each text-based game showing how JitRL modifies decision-making. \textbf{Base} and \textbf{JitRL} denote the logits before and after the memory-based update. The results highlight JitRL's ability to override exploratory defaults, learn game-specific mechanics, and prioritize high-reward actions.}
+    \label{tab:jericho_case_study}
+    \vspace{8pt}
+    \small
+    \renewcommand{\arraystretch}{0.9}
+
+    \begin{tabularx}{\linewidth}{l l c c X}
+        \toprule
+        \textbf{State / Context} & \textbf{Candidate Action} & \textbf{Base} & \textbf{JitRL} & \textbf{Mechanism Explanation} \\
+        \midrule
+
+        % Case 1: Library - give ID card
+        Library: Lobby & \textcolor{red}{\textbf{examine desk}} & \textbf{0.85} & 0.35 & The base model defaults to exploratory actions. \\
+        (Attendant present) & \textcolor{green!60!black}{\textbf{give ID to attendant}} & 0.45 & \textbf{1.65} & Memory encodes that this action immediately yields +5 points and unlocks the rare books room. \\
+
+        \addlinespace[6pt]
+
+        % Case 2: Zork1 - echo in Loud Room
+        Zork1: Loud Room & \textcolor{red}{\textbf{take platinum bar}} & \textbf{0.92} & 0.42 & Greedy treasure-grabbing seems intuitive, but fails \\
+        (Deafening noise) & \textcolor{green!60!black}{\textbf{echo}} & 0.30 & \textbf{1.50} & in the noisy room. JitRL learns that ``echo'' quiets the room, enabling treasure collection. \\
+
+        \addlinespace[6pt]
+
+        % Case 3: Zork3 - tie rope to railing
+        Zork3: Cliff & \textcolor{red}{\textbf{climb down}} & \textbf{0.90} & 0.30 & Direct descent without preparation leads to death. \\
+        (Holding rope) & \textcolor{green!60!black}{\textbf{tie rope to railing}} & 0.40 & \textbf{1.60} & Memory encodes that securing the rope first enables safe descent and progression. \\
+
+        \bottomrule
+
+    \end{tabularx}
+\end{table*}

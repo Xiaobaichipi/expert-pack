@@ -1,0 +1,41 @@
+% \begin{table}[t]
+% \centering
+% \caption{Memory utilization breakdown by domain. Cross-Task refers to memories retrieved from different tasks, while Cross-Episode refers to memories from prior episodes of the same task.}
+% \label{tab:memory_utilization}
+% \resizebox{0.48\textwidth}{!}{
+% \begin{tabular}{lcc}
+% \toprule
+% \textbf{Domain} & \textbf{Cross-Task (\%)} & \textbf{Cross-Episode (\%)} \\
+% \midrule
+% Shopping & 62.19 & 37.81 \\
+% Admin & 40.54 & 59.46 \\
+% Map & 37.64 & 62.36 \\
+% \midrule
+% \textbf{Average} & \textbf{50.54} & \textbf{49.46} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{table}
+
+
+\begin{table}[t]
+\vspace{-4mm}
+  \caption{Distribution (\%) of cross-task memory utilization.}
+  \label{tab:memory_utilization}
+  \begin{center}
+    \begin{small}
+      \begin{adjustbox}{width=\columnwidth}
+      \vspace{-6mm}
+        \begin{tabular}{lccccc}
+          \toprule
+          \textbf{Admin} & \textbf{GitLab} & \textbf{Map} & \textbf{Reddit} & \textbf{Shopping} & \textbf{Avg} \\
+          \midrule
+          40.54 & 38.47 & 37.64 & 56.31 & 62.19 & 47.03 \\
+          \bottomrule
+        \end{tabular}
+      \end{adjustbox}
+    \end{small}
+  \end{center}
+  \vspace{-4mm}
+\end{table}
+

@@ -1,0 +1,45 @@
+== expert-pack offline demo ==
+model: scripted demo planner (no API key) | tools: MCP stdio demo server
+skills: 2 built-in | memory: sqlite
+
+task       baseline         with JitRL memory
+demo-1     FAIL (0)         FAIL (0)        
+demo-2     FAIL (0)         ok   (51)       
+demo-3     FAIL (0)         ok   (126)      
+demo-4     FAIL (0)         ok   (51)       
+demo-5     FAIL (0)         ok   (126)      
+demo-6     FAIL (0)         ok   (51)       
+
+success rate: baseline 0% -> memory 83%
+memory: 6 episodes, 17 transitions
+
+== decision traces (memory arm) ==
+
+demo-1 (success=False, answer='0')
+  step 0: tool:demo/calc{"expression":"0"}(base=-0.11,q=n/a,adv=+0.000->-0.11) tool:demo/lookup{"item":"alpha"}(base=-0.92,q=n/a,adv=+0.000->-0.92)
+  step 1: answer{"answer":"0"}(base=-0.11,q=n/a,adv=+0.000->-0.11)
+
+demo-2 (success=True, answer='51')
+  step 0: tool:demo/lookup{"item":"beta"}(base=-0.92,q=+0.47,adv=+1.020->+0.10) tool:demo/calc{"expression":"0"}(base=-0.11,q=-0.53,adv=+0.000->-0.11)
+  step 1: tool:demo/calc{"expression":"17*3"}(base=-0.11,q=n/a,adv=+0.000->-0.11) skill:verify-arithmetic{"answer":"","expression":"17*3"}(base=-3.00,q=n/a,adv=+0.000->-3.00)
+  step 2: answer{"answer":"51"}(base=-0.11,q=-1.00,adv=+0.000->-0.11)
+
+demo-3 (success=True, answer='126')
+  step 0: tool:demo/lookup{"item":"alpha"}(base=-0.92,q=+0.20,adv=+1.030->+0.11) tool:demo/calc{"expression":"0"}(base=-0.11,q=-0.53,adv=-1.030->-1.14)
+  step 1: tool:demo/calc{"expression":"42*3"}(base=-0.11,q=+0.46,adv=+0.000->-0.11) skill:verify-arithmetic{"answer":"","expression":"42*3"}(base=-3.00,q=+1.46,adv=+1.030->-1.97)
+  step 2: answer{"answer":"126"}(base=-0.11,q=-0.02,adv=-1.030->-1.14)
+
+demo-4 (success=True, answer='51')
+  step 0: tool:demo/lookup{"item":"beta"}(base=-0.92,q=+0.20,adv=+1.040->+0.12) tool:demo/calc{"expression":"0"}(base=-0.11,q=-0.53,adv=-2.080->-2.19)
+  step 1: tool:demo/calc{"expression":"17*3"}(base=-0.11,q=+0.46,adv=+0.000->-0.11) skill:verify-arithmetic{"answer":"","expression":"17*3"}(base=-3.00,q=+0.96,adv=+1.040->-1.96)
+  step 2: answer{"answer":"51"}(base=-0.11,q=+0.31,adv=-1.040->-1.15)
+
+demo-5 (success=True, answer='126')
+  step 0: tool:demo/lookup{"item":"alpha"}(base=-0.92,q=+0.20,adv=+1.050->+0.13) tool:demo/calc{"expression":"0"}(base=-0.11,q=-0.53,adv=-3.150->-3.26)
+  step 1: tool:demo/calc{"expression":"42*3"}(base=-0.11,q=+0.46,adv=+0.000->-0.11) skill:verify-arithmetic{"answer":"","expression":"42*3"}(base=-3.00,q=+0.79,adv=+1.050->-1.95)
+  step 2: answer{"answer":"126"}(base=-0.11,q=+0.48,adv=+1.050->+0.94)
+
+demo-6 (success=True, answer='51')
+  step 0: tool:demo/lookup{"item":"beta"}(base=-0.92,q=+0.20,adv=+1.060->+0.14) tool:demo/calc{"expression":"0"}(base=-0.11,q=-0.53,adv=-4.240->-4.35)
+  step 1: tool:demo/calc{"expression":"17*3"}(base=-0.11,q=+0.46,adv=+0.000->-0.11) skill:verify-arithmetic{"answer":"","expression":"17*3"}(base=-3.00,q=+0.71,adv=+1.060->-1.94)
+  step 2: answer{"answer":"51"}(base=-0.11,q=+0.58,adv=+0.000->-0.11)

@@ -1,0 +1,179 @@
+%%%%%%%% ICML 2025 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{booktabs} % for professional tables
+\usepackage{graphicx}  % 插入图片所需
+\usepackage{subcaption} % 处理子图所需
+\usepackage{multirow}
+\usepackage{booktabs}   % 也就是三线表 toprule, midrule
+\usepackage{makecell}   % 用于单元格内换行
+\usepackage{tabularx}
+\usepackage{xcolor}     % 用于颜色
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2025} with \usepackage[nohyperref]{icml2025} above.
+\usepackage{hyperref}
+
+\usepackage{adjustbox}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\newcommand{\bh}[1]{%
+  {\color{blue}#1}%
+}
+% Use the following line for the initial blind version submitted for review:
+\usepackage[accepted]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2025}
+
+% For theorems and such
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% for colored text in algorithms
+\usepackage{xcolor}
+
+% for nice prompt boxes in appendix
+\usepackage{tcolorbox}
+\usepackage{enumitem} % for customizing lists in prompts
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{promptbox}[1][]{
+  enhanced,
+  breakable,
+  colback=blue!3,
+  colframe=black!70,
+  coltitle=white,
+  fonttitle=\bfseries\small,
+  attach boxed title to top left={yshift=-2mm, xshift=4mm},
+  boxed title style={colback=black!70, arc=1pt},
+  left=6pt,
+  right=6pt,
+  top=8pt,
+  bottom=6pt,
+  boxrule=1pt,
+  arc=3pt,
+  #1
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\E}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Just-In-Time Reinforcement Learning: Continual Learning in LLM Agents Without Gradient Updates}
+
+\begin{document}
+    
+\twocolumn[
+% \icmltitle{Beyond Gradient Updates: Just-In-Time Reinforcement Learning for LLM Agents}
+\icmltitle{Just-In-Time Reinforcement Learning: Continual Learning in LLM Agents Without Gradient Updates}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2025
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+
+
+\begin{icmlauthorlist}
+\icmlauthor{Yibo Li}{nus}
+\icmlauthor{Zijie Lin}{nus}
+\icmlauthor{Ailin Deng}{nus}
+\icmlauthor{Xuan Zhang}{nus}
+\icmlauthor{Yufei He}{nus}
+\icmlauthor{Shuo Ji}{nus}
+\icmlauthor{Tri Cao}{nus}
+\icmlauthor{Bryan Hooi}{nus}
+
+%\icmlauthor{}{sch}
+%\icmlauthor{}{sch}
+\end{icmlauthorlist}
+
+\icmlaffiliation{nus}{National University of Singapore, Singapore}
+
+
+\icmlcorrespondingauthor{Shuo Ji}{jishuo@u.nus.edu}
+% \icmlcorrespondingauthor{Yibo Li}{liyibo@u.nus.edu}
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+\printAffiliationsAndNotice{} % otherwise use the standard text.
+
+
+\begin{abstract}
+While Large Language Model (LLM) agents excel at general tasks, they inherently struggle with continual adaptation due to the frozen weights after deployment. Conventional reinforcement learning (RL) offers a solution but incurs prohibitive computational costs and the risk of catastrophic forgetting. 
+    We introduce \textbf{Just-In-Time Reinforcement Learning (JitRL)}, a training-free framework that enables test-time policy optimization without any gradient updates. 
+    JitRL maintains a dynamic, non-parametric memory of experiences and retrieves relevant trajectories to estimate action advantages on-the-fly. 
+    These estimates are then used to directly modulate the LLM's output logits. 
+    We theoretically prove that this additive update rule is the exact closed-form solution to the KL-constrained policy optimization objective. 
+    Extensive experiments on WebArena and Jericho demonstrate that JitRL establishes a new state-of-the-art among training-free methods. 
+    Crucially, JitRL outperforms the performance of computationally expensive fine-tuning methods (e.g., WebRL) while reducing monetary costs by over 30$\times$, offering a scalable path for continual learning agents. The code is available at \href{https://github.com/liushiliushi/JitRL}{https://github.com/liushiliushi/JitRL}.
+\end{abstract}
+
+\input{introduction}
+\input{related}
+\input{GRPO}
+\input{method}
+\input{experiments}
+\input{conclusion}
+
+\bibliography{references}
+% \bibliographystyle{example_paper}
+\bibliographystyle{icml2026}
+\input{appendix}
+\end{document}
+
+

@@ -1,0 +1,48 @@
+\begin{table*}[t]
+    \centering
+    \caption{\textbf{Qualitative Analysis of Policy Improvement.} We select three representative cases showing how JitRL modifies decision-making. \textbf{Base} and \textbf{JitRL} denote the logits before and after the memory-based update. Compared to \textbf{Base}, \textbf{JitRL} decreases the logits for \textcolor{red}{\textbf{incorrect}} options and increases them for \textcolor{green!60!black}{\textbf{correct}} options. In this way, JitRL corrects semantic priors and optimizes efficiency.}
+    \label{tab:case_study}
+    \vspace{8pt}
+    \small
+    \renewcommand{\arraystretch}{1.2} % 保持增加的行高，视觉舒适
+    
+    % 确保导言区有 \usepackage{multirow} 和 \usepackage{tabularx}
+    \begin{tabularx}{\linewidth}{l l c c >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Task} & \textbf{Candidate Action} & \textbf{Base} & \textbf{JitRL} & \textbf{Mechanism Explanation} \\
+        \midrule
+        
+        % Case 1: Admin
+
+        Find customer reviews & \textcolor{red}{\textbf{click(CATALOG)}} & \textbf{0.90} & 0.40 & \multirow{2}{=}{While ``Catalog'' appears semantically intuitive, memory corrects this prior: reviews are located under ``Marketing''.} \\
+        (Site Functionality) & \textcolor{green!60!black}{\textbf{click(MARKETING)}} & 0.70 & \textbf{1.40} &  \\ 
+
+        \addlinespace[3pt]
+
+        % Case 2: Reddit
+        Find posts in subreddit  & \textcolor{red}{\textbf{fill(Search, ``..'')}} & \textbf{0.95} & 0.45 & \multirow{2}{=}{Global search often yields noisy results. Memory steers the agent toward ``Forums'' for a deterministic and accurate path.} \\
+        (Navigation Precision) & \textcolor{green!60!black}{\textbf{click(Forums)}} & 0.80 & \textbf{1.80} &  \\
+
+        \addlinespace[3pt]
+
+        % Case 3: Shopping
+        Access product inventory & \textcolor{red}{\textbf{click(Products)}} & \textbf{0.95} & -0.28 & \multirow{2}{=}{Clicking loads a generic page. Memory identifies ``hover'' as an efficient shortcut to instantly reveal subcategories.} \\
+        (UI Mechanics) & \textcolor{green!60!black}{\textbf{hover(Products)}} & 0.40 & \textbf{0.90} &  \\
+        
+        \bottomrule
+
+    \end{tabularx}
+\end{table*}
+
+
+        % \addlinespace[6pt]
+
+        % % Case 4: Map - Measure walking distance
+        % Measure walking distance & \textcolor{red}{\textbf{fill(Search, "...")}} & \textbf{0.95} & 0.78 & Searching location first is intuitive but inefficient. JitRL \\
+        % (Map) & \textcolor{green!60!black}{\textbf{click(Find directions)}} & 0.90 & \textbf{1.40} & learns to directly click ``Find directions'' for distance queries. \\
+
+        % \addlinespace[6pt]
+
+        % % Case 5: Shopping - Browse product category
+        % Browse Cabinets category & \textcolor{red}{\textbf{hover(Office Products)}} & \textbf{0.85} & 0.98 & ``Cabinets'' seems related to office furniture, but memory \\
+        % (Shopping) & \textcolor{green!60!black}{\textbf{hover(Home \& Kitchen)}} & 0.80 & \textbf{1.80} & knows this category is actually under ``Home \& Kitchen''. \\

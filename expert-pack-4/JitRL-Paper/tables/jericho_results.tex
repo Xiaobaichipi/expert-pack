@@ -1,0 +1,30 @@
+\begin{table}[ht]
+\vspace{-4mm}
+    \caption{Results on Jericho games. We report: \textbf{Avg}: average score across 50 episodes; \textbf{Final}: final episode score.}
+    \label{tab:jericho_results}
+    \begin{center}
+    \begin{small}
+    % \begin{adjustbox}{width=\columnwidth}
+    \begin{tabular}{lcccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Library}} & \multicolumn{2}{c}{\textbf{Zork1}} & \multicolumn{2}{c}{\textbf{Zork3}} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+    & \textbf{Avg} & \textbf{Final} & \textbf{Avg} & \textbf{Final} & \textbf{Avg} & \textbf{Final} \\
+    \midrule
+    Static & 10.0 & 10 & 8.5 & 10 & 0.2 & 0 \\
+    Memory & 13.2 & 14 & 22.9 & 25 & 1.0 & 1 \\
+    Reflexion & 15.4 & 18 & 26.1 & 35 & 1.4 & 1 \\
+    AWM & 12.7 & 10 & 38.8 & 44 & 1.9 & 2 \\
+    EvoTest & 21.5 & 26 & 46.8 & 54 & 2.6 & 4 \\
+    \midrule
+    GRPO & 13.6 & 11 & 16.2 & 10 & 1.1 & 2 \\
+    
+    \midrule
+    \textbf{JitRL} & \textbf{25.9} & \textbf{30} & \textbf{53.0} & \textbf{69} & \textbf{3.1} & \textbf{5} \\
+    \bottomrule
+    \end{tabular}
+    \vspace{-4mm}
+    % \end{adjustbox}
+    \end{small}
+    \end{center}
+\end{table}

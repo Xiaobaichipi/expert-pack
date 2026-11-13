@@ -1,0 +1,63 @@
+\begin{table*}[t]
+  \caption{Main results on WebArena. We report average (\textbf{Avg}) and final (\textbf{Final}) success rate (\%) for each domain. The gap between Final and Avg reflects learning efficiency. The final column (Average) is calculated as the micro-average across all tasks from all websites.}
+  \vskip -0.1in
+  \label{tab:main_results}
+  \begin{center}
+    \begin{small}
+      % \begin{sc}
+      % \resizebox{\textwidth}{!}{%
+        \begin{adjustbox}{width=\textwidth}
+        \begin{tabular}{lcccccccccccc}
+          \toprule
+          \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Admin}} & \multicolumn{2}{c}{\textbf{GitLab}} & \multicolumn{2}{c}{\textbf{Map}} & \multicolumn{2}{c}{\textbf{Reddit}} & \multicolumn{2}{c}{\textbf{Shopping}} & \multicolumn{2}{c}{\textbf{Average}} \\
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final}\\
+          \midrule
+          Static & 39.46 & 39.67 & 38.92 & 38.24 & 30.62 & 31.25 & 39.60 & 42.86 & 24.06 & 25.00 & 35.63 & 36.30 \\
+          Memory & 47.91 & 47.80 & 39.31 & 40.20 & 30.47 & 32.81 & 53.02 & 55.04 & 30.16 & 33.16 & 41.36 & 43.00 \\
+          Reflexion & 48.46 & 50.55 & 38.43 & 40.69 & 29.38 & 27.34 & 54.88 & 56.59 & 30.83 & 31.25 & 41.08 & 42.12 \\
+          AWM & 49.46 & 51.09 & 37.94 & 40.20 & 34.38 & 32.81 & 55.66 & 58.14 & 23.12 & 22.40 & 39.37 & 40.32 \\
+          EvoTest & 44.51 & 47.80 & 37.94 & 39.22 & 33.59 & 41.41 & 51.78 & 54.26 & 26.67 & 29.17 & 39.24 & 42.49 \\
+          \midrule
+          \textbf{JitRL} & \textbf{52.31} & \textbf{56.59} & \textbf{40.78} & \textbf{45.00} & \textbf{37.66} & \textbf{42.19} & \textbf{57.64} & \textbf{61.98} & \textbf{41.67} & \textbf{45.83} & \textbf{46.98} & \textbf{51.35} \\
+          \bottomrule
+        \end{tabular}
+        \vspace{-6mm}
+        \end{adjustbox}
+      % }
+      % \end{sc}
+    \end{small}
+  \end{center}
+\end{table*}
+
+
+
+% \begin{table*}[t]
+%   \caption{Main results on WebArena. We report the \textbf{Final} success rate(\%) for each domain.}
+%   \vskip -0.1in
+%   \label{tab:main_results}
+%   \begin{center}
+%     \begin{small}
+%         \begin{adjustbox}{width=\textwidth}
+%         \begin{tabular}{lcccccc}
+%           \toprule
+%           \textbf{Method} & \textbf{Admin} & \textbf{GitLab} & \textbf{Map} & \textbf{Reddit} & \textbf{Shopping} & \textbf{Average} \\
+%           \midrule
+%           Static    & 39.67 & 38.24 & 31.25 & 42.86 & 25.00 & 36.30 \\
+%           Memory    & 47.80 & 40.20 & 32.81 & 55.04 & 33.16 & 43.00 \\
+%           Reflexion & 50.55 & 40.69 & 27.34 & 56.59 & 31.25 & 42.12 \\
+%           AWM       & 51.09 & 40.20 & 32.81 & 58.14 & 22.40 & 40.32 \\
+%           EvoTest   & 47.80 & 39.22 & 41.41 & 54.26 & 29.17 & 42.49 \\
+%           \midrule
+%           \textbf{JitRL} & \textbf{56.59} & \textbf{45.00} & \textbf{42.19} & \textbf{61.98} & \textbf{45.83} & \textbf{51.35} \\
+%           \bottomrule
+%         \end{tabular}
+%         \end{adjustbox}
+%     \end{small}
+%   \end{center}
+% \end{table*}
+

@@ -1,0 +1,44 @@
+% \begin{table*}[h]
+%     \centering
+%     \caption{Comparison of \textbf{Final Score} with weight-update methods on WebArena-Lite, the held-out test set used by SFT and WebRL (which train on the remaining WebArena tasks). Despite being training-free, JitRL outperforms online RL fine-tuning without any gradient updates.}
+%     \label{tab:webrl_comparison}
+%     \begin{tabular}{lcccccc}
+%     \toprule
+%     \textbf{Method} & \textbf{Admin} & \textbf{GitLab} & \textbf{Map} & \textbf{Reddit} & \textbf{Shopping} & \textbf{Avg} \\
+%     \midrule
+%     %Llama-3.1-Instruct-70B & 17.1 & 16.7 & 20.0 & 10.5 & 4.4 & 12.7 \\
+%     SFT & 20.0 & 20.0 & 26.7 & 52.6 & 13.3 & 23.0 \\
+%     WebRL & 54.3 & 50.0 & 40.0 & 78.9 & 44.4 & 49.1 \\
+%     %Llama-3.1 + JitRL & 18.33 & 25.29 & 24.67 & 38.00 & 24.00 & 26.06 \\
+%     \midrule
+%     %Gemini-2.5-Flash & 48.57 & 40.00 & 25.00 & 60.00 & 41.30 & 42.98 \\
+%     JitRL & \textbf{65.71} & \textbf{56.67} & \textbf{53.57} & \textbf{78.95} & \textbf{53.33} & \textbf{60.0} \\
+%     \bottomrule
+%     \end{tabular}
+% \end{table*}
+
+\begin{table}[t]
+  \caption{
+ Comparison of \textbf{Final} success rate (\%) with weight-update methods on \textbf{WebArena-Lite}, the held-out test set. The remainder of WebArena was used to train WebRL.
+  }
+
+  \label{tab:webrl_comparison}
+  \begin{center}
+    \begin{small}
+      \begin{adjustbox}{width=\columnwidth}
+      \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Method} & \textbf{Admin} & \textbf{GitLab} & \textbf{Map} & \textbf{Reddit} & \textbf{Shopping} & \textbf{Average} \\
+        \midrule
+       SFT    & 20.00 & 20.00 & 26.70 & 52.60 & 13.30 & 23.00 \\
+        WebRL & 58.33 & 47.06 & 32.26 & 62.50 & 30.43 & 46.06 \\
+        \textbf{JitRL} & \textbf{65.71} & \textbf{56.67} & \textbf{53.57} & \textbf{78.95} & \textbf{53.33} & \textbf{60.00} \\
+        \bottomrule
+      \end{tabular}
+      \vspace{-8mm}
+      \end{adjustbox}
+    \end{small}
+  \end{center}
+
+\end{table}
+

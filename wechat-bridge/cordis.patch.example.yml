@@ -1,0 +1,21 @@
+# 把 wechat-bridge 接进 DSH 的示例补丁
+# 用法：把下面整段追加到 <DSH profile>/cordis.patch.yml 末尾，改成你自己的路径和凭据。
+# Windows 默认 profile 目录：C:\Users\<你>\.dsh\profiles\desktop\cordis.patch.yml
+
+- id: mcp-wechat-push
+  name: '@deepseek-ai/dsh-mcp-client'
+  config:
+    serverName: wechat
+    transport: stdio
+    command: 'C:\Users\11454\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\python\python.exe'
+    args: ['F:\work\2026年\10月\专家包\wechat-bridge\mcp_server.py']
+    toolCallTimeoutMs: 30000
+    env:
+      # Server酱 Turbo：只配这一行就能往自己微信发
+      SCT_SENDKEY: SCT请换成你自己的SendKey
+      # 企业微信自建应用（可选，三件套一起配）
+      WECOM_CORP_ID: ww请换成你的企业ID
+      WECOM_AGENT_ID: '1000002'
+      WECOM_SECRET: 请换成你的应用Secret
+      # 企业微信群机器人 webhook（可选）
+      WECOM_ROBOT_URL: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=请换成你的key

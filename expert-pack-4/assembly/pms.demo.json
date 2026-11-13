@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "name": "pms-demo",
+  "agent": {
+    "max_steps": 6,
+    "temperature": 0.0,
+    "seed": 7,
+    "memory_context": true,
+    "memory_context_k": 3,
+    "memory_action_limit": 3,
+    "max_prompt_observation_chars": 2000,
+    "max_candidates": 5,
+    "repair_attempts": 2,
+    "enforce_action_hints": true
+  },
+  "bindings": [
+    {
+      "slot": "model",
+      "type": "module",
+      "target": "expert_pack.extensions.pms.planner:from_config",
+      "config": {"kind": "pms-scripted"}
+    },
+    {
+      "slot": "tools",
+      "type": "mcp_stdio",
+      "target": "pms",
+      "config": {
+        "command": "python",
+        "args": ["scripts/mcp_server.py"],
+        "cwd": "../../expert-pack-3/skills/pms-gateway-mcp",
+        "env": {"PMS_AUTH_MODE": "mock"},
+        "timeout": 20
+      }
+    },
+    {
+      "slot": "skills",
+      "type": "skill_dir",
+      "target": "../../expert-pack-3/skills"
+    },
+    {
+      "slot": "abstractor",
+      "type": "module",
+      "target": "expert_pack.extensions.pms.state:from_config",
+      "config": {"max_tokens": 96}
+    },
+    {
+      "slot": "evaluator",
+      "type": "module",
+      "target": "expert_pack.extensions.pms.evaluator:from_config",
+      "config": {"step_penalty": -0.03}
+    },
+    {
+      "slot": "retriever",
+      "type": "module",
+      "target": "expert_pack.extensions.pms.retrieval:from_config",
+      "config": {"default_min_similarity": 0.4}
+    },
+    {
+      "slot": "store",
+      "type": "builtin",
+      "target": "sqlite",
+      "config": {"path": "runs/pms-assembly.sqlite3"}
+    },
+    {
+      "slot": "policy",
+      "type": "builtin",
+      "target": "jitrl",
+      "config": {"top_k": 7, "min_similarity": 0.4}
+    }
+  ]
+}

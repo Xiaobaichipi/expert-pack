@@ -1,0 +1,51 @@
+\begin{table}[t]
+  \caption{Comparison of average (\textbf{Avg}) and \textbf{Final} success rate between JitRL and baseline methods across different backbone LLMs.}
+  \vskip 0.1in
+  \label{tab:base_models}
+  \begin{center}
+    \begin{small}
+        \begin{tabular}{lcccc}
+          \toprule
+          \multirow{2}{*}{\textbf{Method}} 
+          & \multicolumn{2}{c}{\textbf{Admin}} 
+          & \multicolumn{2}{c}{\textbf{Reddit}} \\
+          \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+          & \textbf{Avg} & \textbf{Final}
+          & \textbf{Avg} & \textbf{Final} \\
+          
+          % Gemini-2.5-flash
+          \midrule
+          \multicolumn{5}{c}{\textit{\textbf{Gemini-2.5-flash}}} \\ \addlinespace[2pt]
+          Static & 39.46 & 39.67 & 39.60 & 42.86 \\
+          Memory & 47.91 & 47.80 & 53.02 & 55.04 \\
+          Reflexion & 48.46 & 50.55 & 54.88 & 56.59 \\
+          AWM & 49.46 & 51.09 & 55.66 & 58.14 \\
+          EvoTest & 44.51 & 47.80 & 51.78 & 54.26 \\
+          \textbf{JitRL (Ours)} & \textbf{52.31} & \textbf{56.59} & \textbf{57.64} & \textbf{61.98} \\
+
+          % GPT-5-mini
+          \midrule
+          \multicolumn{5}{c}{\textit{\textbf{GPT-5-mini}}} \\ \addlinespace[2pt]
+          Static & 37.07 & 37.50 & 47.29 & 46.51 \\
+          Memory & 43.04 & 45.65 & 50.54 & 51.94 \\
+          Reflexion & 40.43 & 41.30 & 49.15 & 49.61 \\
+          AWM & 40.00 & 40.22 & 50.23 & 51.94 \\
+          EvoTest & 42.93 & 43.48 & 51.94 & 53.49 \\
+          \textbf{JitRL (Ours)} & \textbf{48.04} & \textbf{51.63} & \textbf{52.87} & \textbf{57.36} \\
+
+          % DeepSeek-V3.2 
+          \midrule
+          \multicolumn{5}{c}{\textit{\textbf{DeepSeek-V3.2}}} \\ \addlinespace[2pt]
+          Static & 32.07 & 32.61 & 42.02 & 43.41 \\
+          Memory & 37.07 & 45.65 & 51.47 & 56.28 \\
+          Reflexion & 38.04 & 40.22 & \textbf{55.04} & 56.59 \\
+          AWM & 42.07 & 44.02 & 52.71 & 55.04 \\
+          EvoTest & 44.35 & 45.65 & 50.85 & 53.49 \\
+          \textbf{JitRL (Ours)} & \textbf{50.65} & \textbf{54.35} & 54.42 & \textbf{61.24} \\
+          \bottomrule
+        \end{tabular}
+    \end{small}
+  \end{center}
+  \vskip -0.1in
+\vspace{-4mm}
+\end{table}
