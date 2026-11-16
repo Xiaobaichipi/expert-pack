@@ -48,6 +48,30 @@ INTENT_ACTIONS: dict[str, list[str]] = {
     ],
 }
 
+#: 复杂意图的执行计划提示（帮助模型生成正确候选与顺序）
+INTENT_PLANS: dict[str, str] = {
+    "capacity_max": (
+        "1) 调用 query_open_capacity 获取该站全部主变的 loadRate；"
+        "2) 比较并选出 loadRate 最大的 deviceName；3) 只回答该名称。"
+    ),
+    "defect_presence": (
+        "1) 调用 inquire_defect 获取该站缺陷；2) 判断是否存在 defectLevel 为 严重 或 危急 的记录；"
+        "3) 只回答 是 或 否。"
+    ),
+    "reliability_threshold": (
+        "1) 调用 query_station_scale_analysis 获取 availabilityRate；"
+        "2) 与 99.9 比较；3) 只回答 是 或 否。"
+    ),
+    "highest_model": (
+        "1) 调用 query_open_capacity 获取全部主变 loadRate；2) 选出最大者并记下 deviceId；"
+        "3) 调用 get_asset_by_id 获取 model；4) 只回答型号。"
+    ),
+    "global_rank": (
+        "1) 先获取所有候选记录（query_station_scale_analysis 或 query_open_capacity）；"
+        "2) 在全部记录上比较目标字段；3) 只回答最终胜出者。"
+    ),
+}
+
 
 def _task(
     task_id: str,
@@ -61,6 +85,7 @@ def _task(
     psr_id: str = "",
     defect_id: str = "",
     max_steps: int = 0,
+    plan_hint: str = "",
 ) -> Task:
     context: dict[str, Any] = {
         "intent": intent,
@@ -76,6 +101,9 @@ def _task(
         context["psrId"] = psr_id
     if defect_id:
         context["defectId"] = defect_id
+    plan_hint = plan_hint or INTENT_PLANS.get(intent, "")
+    if plan_hint:
+        context["planHint"] = plan_hint
     return Task(
         id=task_id,
         goal=goal,

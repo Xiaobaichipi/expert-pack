@@ -450,6 +450,11 @@ class ExpertAgent:
         lines.append("")
         lines.append(f"CURRENT OBSERVATION (kind={observation.kind}, ok={observation.ok}):")
         lines.append(observation.text[: self.config.max_prompt_observation_chars])
+        plan_hint = task.context.get("planHint")
+        if plan_hint:
+            lines.append("")
+            lines.append("TASK PLAN (follow unless the data contradicts it):")
+            lines.append(str(plan_hint))
         suggested = task.context.get("suggestedActions")
         if suggested:
             lines.append("")

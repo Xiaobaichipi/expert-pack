@@ -100,6 +100,19 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(result.trajectory.steps[0].observation.ok)
         self.assertIn("missing required arguments", model.calls[1][-1].content)
 
+    def test_task_plan_hint_is_injected(self) -> None:
+        model = ScriptedModel(['{"candidates":[{"action":"answer","arguments":{"answer":"1"}}]}'])
+        agent = build_agent(model=model, config=AgentConfig(max_steps=1))
+        agent.solve(
+            Task(
+                id="t",
+                goal="查询最高负载主变型号",
+                max_steps=1,
+                context={"planHint": "先查容量，再查型号"},
+            )
+        )
+        self.assertIn("TASK PLAN", model.calls[0][-1].content)
+
     def test_comparison_prompt_is_injected_for_compare_tasks(self) -> None:
         model = ScriptedModel(['{"candidates":[{"action":"answer","arguments":{"answer":"1"}}]}'])
         agent = build_agent(model=model, config=AgentConfig(max_steps=1))

@@ -708,11 +708,24 @@ python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
 
 ### 20.2 复测状态
 
-真实模型 26 题复测在任务 8/26 处被 **ARK 账号月度配额（HTTP 429）中断**，未得到完整结果。
-代码与单测已完成（`tests/test_agent.py` 的 `test_comparison_prompt_is_injected_for_compare_tasks`）；
-完整 A/B 结果需等 2026-11-17 配额重置后重跑。
+真实模型 26 题复测在任务 8/26 处被 **ARK 账号月度配额（HTTP 429）中断**；2026-11-16 再次尝试，
+26/26 全部返回 `AccountQuotaExceeded`，仍未得到完整结果。代码与单测已完成
+（`test_comparison_prompt_is_injected_for_compare_tasks`、`test_task_plan_hint_is_injected`）；
+完整 A/B 结果需等 **2026-11-17 配额重置**后重跑。
 
-### 20.3 运行方式
+### 20.3 任务计划提示（补强）
+
+仅靠“比较规则”仍可能让模型选错第一步；为复杂意图补充 `INTENT_PLANS`：
+
+- `capacity_max`：先 `query_open_capacity` 取全部负载，比较后回答；
+- `defect_presence`：先 `inquire_defect`，判断是否存在严重/危急；
+- `reliability_threshold`：先 `query_station_scale_analysis`，与 99.9 比较；
+- `highest_model`：先 `query_open_capacity` 选最大负载 `deviceId`，再 `get_asset_by_id` 查型号；
+- `global_rank`：先取全部候选，再在全部记录上比较。
+
+任务 `context["planHint"]` 会自动进入 prompt 的 `TASK PLAN` 段；单测覆盖。
+
+### 20.4 运行方式
 
 ```powershell
 python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
