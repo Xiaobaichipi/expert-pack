@@ -97,3 +97,36 @@ HTML 是自包含文件，内网可直接打开；PNG 适合快速发图。
 - 没有存渲染后的完整 prompt，只存了完整 observation；下一步可加 `promptHash` 和
   截断元数据（原始长度/保留长度/丢弃记录）；
 - PNG 是辅助图，交互请用 HTML。
+
+## 8. 反事实 replay（Dream-RSI 轻量版）
+
+`tools/replay_tree.py` 可以从树上选一个“未选候选”，执行它，并用**固定后续策略**
+（原轨迹后续 selected actions + 原最终答案兜底）重新评测；成功分支可写回 JitRL 记忆。
+
+```powershell
+python tools/replay_tree.py trajectory-tree/tree.jsonl --list
+python tools/replay_tree.py trajectory-tree/tree.jsonl \
+  --episode pms-E:006:defect-presence-02 --step 1 \
+  --alt tool:pms/inquire_defect \
+  --out trajectory-tree/replays.jsonl \
+  --memory trajectory-tree/replay-memory.sqlite3
+```
+
+本次示例结果：
+
+```text
+replay: replay:46d497fb0b
+episode: pms-E:006:defect-presence-02 step: 1 alt: tool:pms/inquire_defect
+original=True branch=True score=1.000 steps=2
+answer: 否
+memoryWritten: True
+```
+
+写回的记忆带：
+
+- `meta.source = "replay"`
+- `meta.parentEpisode = 原 episodeId`
+- `meta.verified = true`
+
+注意：这是**固定后续策略**的 replay，不是“dream 出新策略”；当前分支也只覆盖一个
+未选候选。下一步应让模型在分支点重新选择后续动作，并批量 replay 多个候选。

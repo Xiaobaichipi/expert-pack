@@ -7,4 +7,7 @@
 - `tree.png`：第一棵子树；
 - `tree-branch.png`：带一个“未选分支”的子树。
 
+- `replays.jsonl`：一次反事实 branch replay 的记录；
+- `replay-memory.sqlite3`：验证成功的 replay 分支写回的记忆。
+
 生成/渲染方式见 [../docs/TRAJECTORY-TREE.md](../docs/TRAJECTORY-TREE.md)。
