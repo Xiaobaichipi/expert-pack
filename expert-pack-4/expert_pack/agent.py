@@ -405,8 +405,9 @@ class ExpertAgent:
                 )
             errors = parse_errors or ["no valid candidates"]
             if attempt + 1 < attempts:
+                assistant_text = reply.text[:800] if reply.text.strip() else "(empty response)"
                 messages = messages + [
-                    ModelMessage("assistant", reply.text[:800]),
+                    ModelMessage("assistant", assistant_text),
                     ModelMessage(
                         "user",
                         "Your previous response could not be used: "

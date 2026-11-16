@@ -23,6 +23,25 @@ import time
 from pathlib import Path
 from typing import Any
 
+PROVIDERS = {
+    "ark": {
+        "key": "ARK_API_KEY",
+        "base": "ARK_OPENAI_BASE_URL",
+        "model": "ARK_MODEL",
+    },
+    "deepseek": {
+        "key": "DEEPSEEK_API_KEY",
+        "base": "DEEPSEEK_OPENAI_BASE_URL",
+        "model": "DEEP_MODEL",
+    },
+    "kimi": {
+        "key": "KIMI_API_KEY",
+        "base": "KIMI_OPENAI_BASE_URL",
+        "model": "KIMI_MODEL",
+        "extra_body": {"temperature": 1.0, "max_tokens": 2000},
+    },
+}
+
 PACK_DIR = Path(__file__).resolve().parents[1]
 WORKSPACE = PACK_DIR.parent
 if str(PACK_DIR) not in sys.path:
@@ -45,7 +64,7 @@ def load_env_file(path: Path) -> None:
         if not text or text.startswith("#") or "=" not in text:
             continue
         key, value = text.split("=", 1)
-        os.environ.setdefault(key.strip(), value.strip())
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
 def _build_arm(
@@ -59,6 +78,7 @@ def _build_arm(
     memory_min_similarity: float = 0.0,
     memory_max_return_std: float = 0.0,
     enforce_action_hints: bool = False,
+    provider: str = "ark",
 ):
     from expert_pack.adapters.mcp_stdio import McpToolProvider
     from expert_pack.adapters.skills import load_skill_directory
@@ -86,7 +106,7 @@ def _build_arm(
         "PMS_TOKEN": server.auth.token,
         "PMS_MOCK_DATASET": os.environ.get("PMS_MOCK_DATASET", "base"),
     }
-    provider = McpToolProvider(
+    tool_provider = McpToolProvider(
         "pms",
         sys.executable,
         [str(PMS_MCP)],
@@ -119,20 +139,24 @@ def _build_arm(
     if model_kind == "openai":
         from expert_pack.adapters.model_openai import OpenAIConfig, OpenAIModel
 
+        settings = PROVIDERS.get(provider)
+        if settings is None:
+            raise SystemExit(f"未知 provider：{provider}（支持 {sorted(PROVIDERS)}）")
         model_backend = OpenAIModel(
             OpenAIConfig(
-                model=os.environ.get("ARK_MODEL", ""),
-                base_url=os.environ.get("ARK_OPENAI_BASE_URL", ""),
-                api_key_env="ARK_API_KEY",
-                timeout=120.0,
+                model=os.environ.get(settings["model"], ""),
+                base_url=os.environ.get(settings["base"], ""),
+                api_key_env=settings["key"],
+                timeout=180.0,
                 max_tokens=700,
+                extra_body=dict(settings.get("extra_body") or {}),
             )
         )
     else:
         model_backend = PmsScriptedPlanner()
     agent = ExpertAgent(
         model=model_backend,
-        tools=[provider],
+        tools=[tool_provider],
         skills=skills,
         store=store,
         retriever=retriever,
@@ -156,7 +180,7 @@ def _build_arm(
         ),
         run_id=f"pms-{arm}",
     )
-    return provider, store, agent, skills, server
+    return tool_provider, store, agent, skills, server
 
 
 def _run_arm(
@@ -172,6 +196,7 @@ def _run_arm(
     memory_max_return_std: float = 0.0,
     dataset: str = "base",
     enforce_action_hints: bool = False,
+    provider: str = "ark",
 ) -> dict[str, Any]:
     if dataset == "extended":
         from expert_pack.extensions.pms.tasks import build_extended_tasks
@@ -191,7 +216,7 @@ def _run_arm(
         tasks = build_tasks()
     if limit > 0:
         tasks = tasks[:limit]
-    provider, store, agent, skills, server = _build_arm(
+    tool_provider, store, agent, skills, server = _build_arm(
         arm,
         out,
         seed,
@@ -202,6 +227,7 @@ def _run_arm(
         memory_min_similarity,
         memory_max_return_std,
         enforce_action_hints,
+        provider,
     )
     arm_dir = out / arm
     arm_dir.mkdir(parents=True, exist_ok=True)
@@ -266,7 +292,7 @@ def _run_arm(
             status = "OK" if result.evaluation.success else "FAIL"
             print(f"[{arm}] {index:02d}/{len(tasks)} {task.id:<24} {status} steps={record['steps']}")
     finally:
-        provider.close()
+        tool_provider.close()
         store.close()
         server.stop()
 
@@ -282,6 +308,7 @@ def _run_arm(
         "memory_transitions": results[-1]["memory_after"].get("transitions", 0) if results else 0,
         "seed": seed,
         "model": model_kind,
+        "provider": provider,
         "arm": arm,
         "dataset": dataset,
     }
@@ -293,8 +320,10 @@ def _run_arm(
 
 def _write_report(out: Path, summaries: list[dict[str, Any]]) -> None:
     model = summaries[0].get("model", "scripted") if summaries else "scripted"
+    provider = summaries[0].get("provider", "") if summaries else ""
+    label = "{}/{}".format(model, provider) if provider else model
     lines = [
-        "# PMS × JitRL 实验结果（model={}）".format(model),
+        "# PMS × JitRL 实验结果（{}）".format(label),
         "",
         "| 臂 | 任务数 | 成功 | 成功率 | 平均步数 | 工具错误 | 技能数 | 记忆 transitions |",
         "|---|---|---|---|---|---|---|---|",
@@ -314,7 +343,9 @@ def _write_report(out: Path, summaries: list[dict[str, Any]]) -> None:
         )
     if model == "openai":
         note = [
-            "> 说明：本实验使用真实 OpenAI 兼容模型（ARK/deepseek）；A=无记忆+全技能，B=有记忆+全技能，",
+            "> 说明：本实验使用真实 OpenAI 兼容模型（provider={}）；A=无记忆+全技能，B=有记忆+全技能，".format(
+                summaries[0].get("provider", "ark") if summaries else "ark"
+            ),
             "> C=有记忆+薄技能，D=有记忆+无技能，E=无记忆+无技能；结论只适用于本次模型与任务集。",
         ]
     else:
@@ -340,6 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--limit", type=int, default=0, help="只跑前 N 个任务（0=全部）")
     parser.add_argument("--model", choices=("scripted", "openai"), default="scripted")
+    parser.add_argument("--provider", choices=("ark", "deepseek", "kimi"), default="ark")
     parser.add_argument("--arms", default="A,B,C", help="逗号分隔的实验臂，如 A,B")
     parser.add_argument("--min-similarity", type=float, default=0.4)
     parser.add_argument("--top-k", type=int, default=7)
@@ -373,6 +405,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.memory_max_return_std,
                 args.dataset,
                 args.enforce_hints,
+                args.provider,
             )
         )
     _write_report(out, summaries)

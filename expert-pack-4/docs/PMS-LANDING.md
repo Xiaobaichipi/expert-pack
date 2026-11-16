@@ -14,6 +14,7 @@
 > P3-复杂任务状态：**已完成复杂任务模拟**（26 题多步/判断/比较，见「十八、P3-复杂任务与步进 RL 状态」）。
 > P3-候选生成增强状态：**已完成**（意图工具提示 + 强制白名单，见「十九、候选生成增强」）。
 > P3-比较引导状态：**已实现**（系统/动态比较约束 + 任务步数补齐，真实模型复测受账号配额限制，见「二十、比较引导」）。
+> P3-Kimi 复测状态：**已完成**（复杂 26 题 D 96.15% / E 92.31%，见「二十一、Kimi 模型复测」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -731,4 +732,43 @@ python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
 python tools/run_pms_experiment.py --model openai --dataset complex --arms D,E \
   --enforce-hints --memory-min-neighbors 2 --memory-min-similarity 0.8 \
   --memory-max-return-std 0.5 --out runs/p3-complex-compare
+```
+
+## 二十一、Kimi 模型复测（2026-11-16）
+
+ARK 月度配额未恢复，改用 `.env` 中新增的 Kimi 配置：
+
+```text
+KIMI_OPENAI_BASE_URL=https://api.kimi.com/coding/v1
+KIMI_MODEL=k3.1-pro-highspeed
+```
+
+harness 新增 `--provider {ark,deepseek,kimi}`：
+
+- Kimi 只接受 `temperature=1`，通过 `extra_body` 强制覆盖；
+- Kimi 的 reasoning tokens 会占用 `max_tokens`，因此提高上限到 2000；
+- 修复了 Kimi 返回空 content 时 repair 消息包含空 assistant 导致 HTTP 400 的问题。
+
+### 21.1 复杂 26 题结果（Kimi，提示+白名单+比较引导+计划提示）
+
+| 臂 | 记忆 | 成功 | 成功率 | 平均步数 | 工具错误 |
+|---|---|---|---|---|---|
+| D | 有 | 25/26 | **96.15%** | 2.54 | 0 |
+| E | 无 | 24/26 | 92.31% | 2.54 | 0 |
+
+结果：[runs/p3-kimi-complex/summary.md](../runs/p3-kimi-complex/summary.md)。
+
+结论：
+
+- Kimi 在复杂任务上明显强于 ARK 配额前的结果（ARK 有提示+白名单为 80.77%），但**不同模型/采样温度不可直接横比**；
+- 记忆仍只带来 1 题差异（96.15% vs 92.31%），平均步数完全相同（2.54）；
+- 两臂都失败的是 `global-lowest-availability-01`：跨 9 个站比较可用率时都选了 110kV 大学城（99.70），
+  而最低是 35kV 物流园（99.60）。说明“候选生成/工具提示”已解决，**剩余瓶颈是比较逻辑本身**。
+
+### 21.2 运行方式
+
+```powershell
+python tools/run_pms_experiment.py --model openai --provider kimi --dataset complex \
+  --arms D,E --enforce-hints --memory-min-neighbors 2 --memory-min-similarity 0.8 \
+  --memory-max-return-std 0.5 --out runs/p3-kimi-complex
 ```
