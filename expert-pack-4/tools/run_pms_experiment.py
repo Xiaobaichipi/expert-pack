@@ -80,6 +80,7 @@ def _build_arm(
     enforce_action_hints: bool = False,
     provider: str = "ark",
     rank_tool: bool = False,
+    report_tool: bool = False,
 ):
     from expert_pack.adapters.mcp_stdio import McpToolProvider
     from expert_pack.adapters.skills import load_skill_directory
@@ -89,6 +90,7 @@ def _build_arm(
     from expert_pack.extensions.pms.retrieval import PmsRetriever, PmsRetrieverConfig
     from expert_pack.extensions.pms.state import PmsAbstractor
     from expert_pack.extensions.pms.rank_tool import PmsRankProvider
+    from expert_pack.extensions.pms.report_generator import PmsReportProvider
     from expert_pack.jitrl.advantage import AdvantageConfig
     from expert_pack.jitrl.memory import NullStore, SqliteExperienceStore
     from expert_pack.jitrl.policy import JitrlPolicy
@@ -117,6 +119,7 @@ def _build_arm(
         timeout=20.0,
     )
     rank_provider = PmsRankProvider(tool_provider) if rank_tool else None
+    report_provider = PmsReportProvider(tool_provider) if report_tool else None
     if arm in ("A", "B"):
         skills = load_skill_directory(FULL_SKILLS)
     elif arm == "C":
@@ -159,7 +162,7 @@ def _build_arm(
         model_backend = PmsScriptedPlanner()
     agent = ExpertAgent(
         model=model_backend,
-        tools=[tool_provider] + ([rank_provider] if rank_provider else []),
+        tools=[tool_provider] + ([rank_provider] if rank_provider else []) + ([report_provider] if report_provider else []),
         skills=skills,
         store=store,
         retriever=retriever,
@@ -183,7 +186,7 @@ def _build_arm(
         ),
         run_id=f"pms-{arm}",
     )
-    return tool_provider, rank_provider, store, agent, skills, server
+    return tool_provider, rank_provider, report_provider, store, agent, skills, server
 
 
 def _run_arm(
@@ -201,6 +204,7 @@ def _run_arm(
     enforce_action_hints: bool = False,
     provider: str = "ark",
     rank_tool: bool = False,
+    report_tool: bool = False,
     structured_compare: bool = False,
     tree_store_path: str | None = None,
 ) -> dict[str, Any]:
@@ -254,7 +258,7 @@ def _run_arm(
         from expert_pack.trajectory.tree_store import TrajectoryTreeStore
 
         tree_store = TrajectoryTreeStore(tree_store_path)
-    tool_provider, rank_provider, store, agent, skills, server = _build_arm(
+    tool_provider, rank_provider, report_provider, store, agent, skills, server = _build_arm(
         arm,
         out,
         seed,
@@ -344,6 +348,8 @@ def _run_arm(
         tool_provider.close()
         if rank_provider is not None:
             rank_provider.close()
+        if report_provider is not None:
+            report_provider.close()
         store.close()
         server.stop()
 
@@ -432,6 +438,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dataset", choices=("base", "extended", "realistic", "complex"), default="base")
     parser.add_argument("--enforce-hints", action="store_true", help="强制只允许任务建议的工具")
     parser.add_argument("--rank-tool", action="store_true", help="绑定 pms-rank 确定性比较工具")
+    parser.add_argument("--report-tool", action="store_true", help="绑定 pms-report 报告生成工具")
     parser.add_argument("--structured-compare", action="store_true", help="要求比较题先输出候选表")
     parser.add_argument("--tree-store", default=None, help="轨迹树 JSONL 输出路径")
     args = parser.parse_args(argv)
@@ -461,6 +468,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.enforce_hints,
                 args.provider,
                 args.rank_tool,
+                args.report_tool,
                 args.structured_compare,
                 args.tree_store,
             )

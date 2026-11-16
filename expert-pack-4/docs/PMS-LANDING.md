@@ -18,6 +18,7 @@
 > P3-比较方案对比状态：**已完成**（结构化候选表 vs 确定性 rank 工具，见「二十二、比较方案对比」）。
 > P3-轨迹树状态：**已完成实验版**（append-only 事件树 + HTML/PNG，见「二十三、轨迹树」）。
 > P3-轨迹树 replay 状态：**已完成**（fixed/model rollout、批量 replay、新分支生成、记忆注入验证，见「二十四、轨迹树 replay」）。
+> P3-短期能力状态：**已完成**（Skill 候选提炼、报告生成工具，见「二十五、短期能力落地」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -893,4 +894,56 @@ python tools/replay_tree.py trajectory-tree/tree.jsonl --generate --provider dee
 # 把 replay 记忆注入实验
 Copy-Item trajectory-tree/replay-all-memory.sqlite3 runs/<run>/D/memory.sqlite3
 python tools/run_pms_experiment.py --provider deepseek --dataset complex --arms D ...
+```
+
+## 二十五、短期能力落地：Skill 候选 + 报告生成（2026-11-16）
+
+### 25.1 Skill 候选提炼
+
+`tools/distill_skills.py` 从轨迹树 + replay + 生成的新分支中提炼 Skill 候选：
+
+```powershell
+python tools/distill_skills.py trajectory-tree/tree.jsonl \
+  --replays trajectory-tree/replays-all.jsonl \
+  --generated trajectory-tree/generated-branches.jsonl \
+  --out trajectory-tree/skill-candidates --min-success 1
+```
+
+结果：**10 个 Skill 候选**（3 个 verified、7 个 draft），写入 `trajectory-tree/skill-candidates/`：
+
+- verified：`capacity_max`（2 成功样本）、`defect_presence`（2）、`reliability_threshold`（1）；
+- draft：来自 generated-branches 的 7 个新候选（未验证）。
+
+每个候选是 Markdown 草稿，含触发条件、推荐动作序列、示例答案、审核清单；人工审核后可转为正式 SKILL.md。
+
+### 25.2 报告生成工具
+
+新增 `pms-report` 实验工具（[report_generator.py](../expert_pack/extensions/pms/report_generator.py)）：
+
+- `station_report(stationId)`：运行概况报告（可用率、停电次数、主变负载、主要缺陷）；
+- `defect_report(stationId)`：缺陷汇总报告（按危急/严重/一般分组）。
+
+示例输出：
+
+```markdown
+# 220kV 航空港变电站 运行概况报告
+
+**主变数量**: 2
+**可用率**: 99.921%
+**停电次数**: 4
+**在册缺陷**: 2 条
+
+## 主变负载
+- 1号主变：88.0%（211.2/240 MVA）
+- 2号主变：76.0%（136.8/180 MVA）
+```
+
+harness 新增 `--report-tool` 开关绑定。
+
+### 25.3 待办事项
+
+中期/长期能力已列入 [docs/TODO.md](TODO.md)，包括：
+
+- 中期：在线监测接入、健康度评分、风险评估、缺陷诊断推理；
+- 长期：主动预警闭环、自动写 Skill、仿真推演、知识图谱。
 ```
