@@ -79,6 +79,7 @@ def _build_arm(
     memory_max_return_std: float = 0.0,
     enforce_action_hints: bool = False,
     provider: str = "ark",
+    rank_tool: bool = False,
 ):
     from expert_pack.adapters.mcp_stdio import McpToolProvider
     from expert_pack.adapters.skills import load_skill_directory
@@ -87,6 +88,7 @@ def _build_arm(
     from expert_pack.extensions.pms.planner import PmsScriptedPlanner
     from expert_pack.extensions.pms.retrieval import PmsRetriever, PmsRetrieverConfig
     from expert_pack.extensions.pms.state import PmsAbstractor
+    from expert_pack.extensions.pms.rank_tool import PmsRankProvider
     from expert_pack.jitrl.advantage import AdvantageConfig
     from expert_pack.jitrl.memory import NullStore, SqliteExperienceStore
     from expert_pack.jitrl.policy import JitrlPolicy
@@ -114,6 +116,7 @@ def _build_arm(
         env=gateway_env,
         timeout=20.0,
     )
+    rank_provider = PmsRankProvider(tool_provider) if rank_tool else None
     if arm in ("A", "B"):
         skills = load_skill_directory(FULL_SKILLS)
     elif arm == "C":
@@ -156,7 +159,7 @@ def _build_arm(
         model_backend = PmsScriptedPlanner()
     agent = ExpertAgent(
         model=model_backend,
-        tools=[tool_provider],
+        tools=[tool_provider] + ([rank_provider] if rank_provider else []),
         skills=skills,
         store=store,
         retriever=retriever,
@@ -180,7 +183,7 @@ def _build_arm(
         ),
         run_id=f"pms-{arm}",
     )
-    return tool_provider, store, agent, skills, server
+    return tool_provider, rank_provider, store, agent, skills, server
 
 
 def _run_arm(
@@ -197,6 +200,8 @@ def _run_arm(
     dataset: str = "base",
     enforce_action_hints: bool = False,
     provider: str = "ark",
+    rank_tool: bool = False,
+    structured_compare: bool = False,
 ) -> dict[str, Any]:
     if dataset == "extended":
         from expert_pack.extensions.pms.tasks import build_extended_tasks
@@ -216,7 +221,34 @@ def _run_arm(
         tasks = build_tasks()
     if limit > 0:
         tasks = tasks[:limit]
-    tool_provider, store, agent, skills, server = _build_arm(
+    compare_families = {"capacity_max", "highest_model", "global_rank"}
+    if structured_compare:
+        for task in tasks:
+            if task.family in compare_families:
+                task.context["requireComparisonTable"] = True
+    if rank_tool:
+        for task in tasks:
+            if task.family in {"capacity_max", "highest_model"}:
+                hints = list(task.context.get("suggestedActions") or [])
+                hint = "tool:pms-rank/rank_devices"
+                if hint not in hints:
+                    hints.append(hint)
+                task.context["suggestedActions"] = hints
+                task.context["planHint"] = (
+                    "可调用 tool:pms-rank/rank_devices(stationId, direction=max) 直接得到最高负载设备，"
+                    "再用 get_asset_by_id 查型号。"
+                )
+            elif task.family == "global_rank":
+                hints = list(task.context.get("suggestedActions") or [])
+                for hint in ("tool:pms-rank/rank_stations", "tool:pms-rank/rank_devices"):
+                    if hint not in hints:
+                        hints.append(hint)
+                task.context["suggestedActions"] = hints
+                task.context["planHint"] = (
+                    "可调用 tool:pms-rank/rank_stations(metric=availabilityRate, direction=min) "
+                    "或 rank_devices(metric=loadRate, direction=max) 直接得到 winner。"
+                )
+    tool_provider, rank_provider, store, agent, skills, server = _build_arm(
         arm,
         out,
         seed,
@@ -228,6 +260,7 @@ def _run_arm(
         memory_max_return_std,
         enforce_action_hints,
         provider,
+        rank_tool,
     )
     arm_dir = out / arm
     arm_dir.mkdir(parents=True, exist_ok=True)
@@ -293,6 +326,8 @@ def _run_arm(
             print(f"[{arm}] {index:02d}/{len(tasks)} {task.id:<24} {status} steps={record['steps']}")
     finally:
         tool_provider.close()
+        if rank_provider is not None:
+            rank_provider.close()
         store.close()
         server.stop()
 
@@ -380,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--memory-max-return-std", type=float, default=0.0)
     parser.add_argument("--dataset", choices=("base", "extended", "realistic", "complex"), default="base")
     parser.add_argument("--enforce-hints", action="store_true", help="强制只允许任务建议的工具")
+    parser.add_argument("--rank-tool", action="store_true", help="绑定 pms-rank 确定性比较工具")
+    parser.add_argument("--structured-compare", action="store_true", help="要求比较题先输出候选表")
     args = parser.parse_args(argv)
 
     load_env_file(WORKSPACE / ".env")
@@ -406,6 +443,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.dataset,
                 args.enforce_hints,
                 args.provider,
+                args.rank_tool,
+                args.structured_compare,
             )
         )
     _write_report(out, summaries)

@@ -15,6 +15,7 @@
 > P3-候选生成增强状态：**已完成**（意图工具提示 + 强制白名单，见「十九、候选生成增强」）。
 > P3-比较引导状态：**已实现**（系统/动态比较约束 + 任务步数补齐，真实模型复测受账号配额限制，见「二十、比较引导」）。
 > P3-Kimi 复测状态：**已完成**（复杂 26 题 D 96.15% / E 92.31%，见「二十一、Kimi 模型复测」）。
+> P3-比较方案对比状态：**已完成**（结构化候选表 vs 确定性 rank 工具，见「二十二、比较方案对比」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -771,4 +772,61 @@ harness 新增 `--provider {ark,deepseek,kimi}`：
 python tools/run_pms_experiment.py --model openai --provider kimi --dataset complex \
   --arms D,E --enforce-hints --memory-min-neighbors 2 --memory-min-similarity 0.8 \
   --memory-max-return-std 0.5 --out runs/p3-kimi-complex
+```
+
+## 二十二、比较方案对比：结构化候选表 vs 确定性 rank 工具（2026-11-16）
+
+针对“跨记录比较”瓶颈，实现了两种方案并分别测试（均为 E 臂、复杂 26 题、无技能、带工具提示）：
+
+### 22.1 方案 1：结构化候选表（prompt）
+`--structured-compare`：要求模型在 `thought` 字段先列出每个候选的 `name: metric=value`，再回答。
+
+### 22.2 方案 2：确定性 rank 工具（代码）
+`--rank-tool`：绑定本地 `pms-rank` 工具：
+
+- `rank_stations(metric=availabilityRate, direction=min)`；
+- `rank_devices(stationId?, metric=loadRate, direction=max)`。
+
+模型把比较交给代码，直接拿到 winner，不再心算。
+
+### 22.3 结果（DeepSeek `deepseek-flash`，E 臂 26 题）
+
+| 方案 | 成功 | 成功率 | 平均步数 |
+|---|---|---|---|
+| 方案 1：结构化候选表 | 18/26 | 69.23% | 3.35 |
+| **方案 2：rank 工具** | **26/26** | **100.00%** | **2.46** |
+
+结果：
+- [结构化候选表](../runs/p3-deepseek-structured/summary.md)
+- [rank 工具](../runs/p3-deepseek-rank/summary.md)
+
+### 22.4 Kimi 上的对照
+
+- 基线 E（无附加方案）：24/26（92.31%），2.54 步；
+- 方案 1 结构化表：19/26（73.08%），3.23 步（**变差**）；
+- 方案 2 rank 工具：跑到第 21 题时触发 Kimi 5 小时额度限制（前 21 题 20 对，未完成全量）。
+
+Kimi 的 5 小时额度与 ARK 的月度额度不同，需等窗口重置后补齐方案 2 的 Kimi 全量结果。
+
+### 22.5 结论
+
+**方案 2（确定性 rank 工具）明显更好**：
+
+- DeepSeek 上 100% vs 69.23%，步数 2.46 vs 3.35；
+- Kimi 上结构化表也变差，rank 工具部分结果已显示优势；
+- 结构化表让模型多写一步表格，容易拖长步数/触发循环；
+- 比较/排序属于确定性计算，交给代码比交给模型心算更可靠。
+
+后续默认采用 `--rank-tool`；结构化表保留为可选诊断手段。
+
+### 22.6 运行方式
+
+```powershell
+# 方案 2：rank 工具
+python tools/run_pms_experiment.py --model openai --provider deepseek --dataset complex --arms E \
+  --enforce-hints --rank-tool --out runs/p3-deepseek-rank
+
+# 方案 1：结构化候选表（对照）
+python tools/run_pms_experiment.py --model openai --provider deepseek --dataset complex --arms E \
+  --enforce-hints --structured-compare --out runs/p3-deepseek-structured
 ```

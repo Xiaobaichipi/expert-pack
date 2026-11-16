@@ -522,6 +522,14 @@ class ExpertAgent:
                 "compare their key fields (loadRate / availabilityRate / defectLevel), "
                 "and only then answer. Do NOT answer after seeing only one row."
             )
+        if task.context.get("requireComparisonTable"):
+            lines.append("")
+            lines.append("STRUCTURED COMPARISON TABLE REQUIRED:")
+            lines.append(
+                "- In the JSON 'thought' field, list EVERY candidate as "
+                "'name: metric=value', one per line, before you answer."
+            )
+            lines.append("- Only answer after the full list is written.")
         lines.append("Return the JSON object now.")
         return "\n".join(lines)
 

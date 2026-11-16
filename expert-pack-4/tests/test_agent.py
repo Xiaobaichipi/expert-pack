@@ -100,6 +100,20 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(result.trajectory.steps[0].observation.ok)
         self.assertIn("missing required arguments", model.calls[1][-1].content)
 
+    def test_structured_comparison_prompt_is_injected(self) -> None:
+        model = ScriptedModel(['{"candidates":[{"action":"answer","arguments":{"answer":"1"}}]}'])
+        agent = build_agent(model=model, config=AgentConfig(max_steps=1))
+        agent.solve(
+            Task(
+                id="t",
+                goal="查询可用率最低的站",
+                max_steps=1,
+                context={"requireComparisonTable": True},
+            )
+        )
+        prompt = model.calls[0][-1].content
+        self.assertIn("STRUCTURED COMPARISON TABLE REQUIRED", prompt)
+
     def test_task_plan_hint_is_injected(self) -> None:
         model = ScriptedModel(['{"candidates":[{"action":"answer","arguments":{"answer":"1"}}]}'])
         agent = build_agent(model=model, config=AgentConfig(max_steps=1))
