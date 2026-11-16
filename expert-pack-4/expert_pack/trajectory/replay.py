@@ -405,6 +405,30 @@ class TreeReplayer:
             record=record,
         )
 
+    def replay_all(
+        self,
+        records: Sequence[dict[str, Any]],
+        *,
+        out_path: str | None = None,
+        memory_path: str | None = None,
+        rollout_model: Any | None = None,
+        write_failed: bool = False,
+    ) -> list[ReplayOutcome]:
+        """批量 replay 树中所有未选候选分支。"""
+        branches = find_branches(records)
+        outcomes: list[ReplayOutcome] = []
+        for branch in branches:
+            outcome = self.replay(
+                records,
+                branch,
+                out_path=out_path,
+                memory_path=memory_path,
+                write_failed=write_failed,
+                rollout_model=rollout_model,
+            )
+            outcomes.append(outcome)
+        return outcomes
+
     def _write_memory(
         self,
         path: str,

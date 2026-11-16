@@ -1,10 +1,12 @@
-"""在轨迹树上做一个反事实 branch replay。
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""在轨迹树上做反事实 replay（Dream-RSI 轻量版）。
 
-示例：
-    python tools/replay_tree.py trajectory-tree/tree.jsonl \
-      --task defect-presence-02 --step 1 --alt tool:pms/inquire_defect \
-      --out trajectory-tree/replays.jsonl \
-      --memory trajectory-tree/replay-memory.sqlite3
+支持：
+* fixed：沿用原后续动作；
+* model：从分支点由模型重新规划；
+* --all：批量 replay 所有未选分支；
+* --generate：让模型提出原树中没有的新候选动作。
 """
 
 from __future__ import annotations
@@ -79,6 +81,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rollout", choices=("fixed", "model"), default="fixed",
                         help="fixed=沿用原后续动作；model=从分支点由模型重新规划")
     parser.add_argument("--provider", choices=("ark", "deepseek", "kimi"), default="deepseek")
+    parser.add_argument("--all", action="store_true", help="批量 replay 所有未选分支")
+    parser.add_argument("--generate", action="store_true", help="让模型提出新候选动作")
+    parser.add_argument("--max-gen", type=int, default=5, help="生成新分支的最大节点数")
     parser.add_argument("--list", action="store_true", help="只列出可选分支")
     args = parser.parse_args(argv)
     _load_env(WORKSPACE / ".env")
@@ -88,9 +93,41 @@ def main(argv: list[str] | None = None) -> int:
 
     records = load_records(args.tree)
     branches = find_branches(records)
-    if not branches:
+    if not branches and not args.generate:
         print("没有可 replay 的未选分支")
         return 1
+
+    if args.generate:
+        # 生成新候选动作，不需要现有分支
+        dataset = "realistic"
+        os.environ["PMS_MOCK_DATASET"] = dataset
+        from mock_gateway.server import start_server
+        from expert_pack.adapters.mcp_stdio import McpToolProvider
+        server = start_server("127.0.0.1", 0, "token")
+        provider = McpToolProvider(
+            "pms", sys.executable, [str(PMS_MCP)], cwd=str(PMS_SKILL),
+            env={
+                "PMS_AUTH_MODE": "token",
+                "PMS_GATEWAY_BASE_URL": server.base_url,
+                "PMS_TOKEN": server.auth.token,
+                "PMS_MOCK_DATASET": dataset,
+            },
+            timeout=20.0,
+        )
+        model = _build_model(args.provider)
+        try:
+            from expert_pack.trajectory.generate import generate_new_branches
+            count = generate_new_branches(
+                records, model, provider,
+                out_path=args.out or str(Path(args.tree).with_suffix(".gen.jsonl")),
+                max_targets=args.max_gen,
+            )
+            print(f"generated {count} new branches")
+        finally:
+            provider.close()
+            server.stop()
+        return 0
+
     selected = []
     for branch in branches:
         episode = episode_record(records, branch.episode_id)
@@ -103,20 +140,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.alt and branch.alternative.get("actionId") != args.alt:
             continue
         selected.append(branch)
-    if not selected:
-        print("没有匹配的分支")
-        for branch in branches:
-            print(
-                "  episode={} task={} step={} alt={}".format(
-                    branch.episode_id,
-                    episode_record(records, branch.episode_id).get("taskId"),
-                    branch.node.get("step"),
-                    branch.alternative.get("actionId"),
-                )
-            )
-        return 1
+
     if args.list:
-        for branch in selected:
+        for branch in selected or branches:
             print(
                 "episode={} task={} step={} alt={}".format(
                     branch.episode_id,
@@ -127,9 +153,16 @@ def main(argv: list[str] | None = None) -> int:
             )
         return 0
 
-    branch = selected[0]
-    episode = episode_record(records, branch.episode_id)
-    dataset = str((episode.get("meta") or {}).get("dataset") or "realistic")
+    if not selected and not args.all:
+        print("没有匹配的分支")
+        return 1
+
+    # 数据集判断
+    dataset = "realistic"
+    for r in records:
+        if r.get("type") == "episode":
+            dataset = str((r.get("meta") or {}).get("dataset") or "realistic")
+            break
     os.environ["PMS_MOCK_DATASET"] = dataset
 
     from mock_gateway.server import start_server
@@ -137,10 +170,7 @@ def main(argv: list[str] | None = None) -> int:
 
     server = start_server("127.0.0.1", 0, "token")
     provider = McpToolProvider(
-        "pms",
-        sys.executable,
-        [str(PMS_MCP)],
-        cwd=str(PMS_SKILL),
+        "pms", sys.executable, [str(PMS_MCP)], cwd=str(PMS_SKILL),
         env={
             "PMS_AUTH_MODE": "token",
             "PMS_GATEWAY_BASE_URL": server.base_url,
@@ -152,27 +182,44 @@ def main(argv: list[str] | None = None) -> int:
     rollout_model = _build_model(args.provider) if args.rollout == "model" else None
     try:
         replayer = TreeReplayer(provider)
-        outcome = replayer.replay(
-            records,
-            branch,
-            out_path=args.out or None,
-            memory_path=args.memory or None,
-            write_failed=args.include_failed,
-            rollout_model=rollout_model,
-        )
+        if args.all:
+            outcomes = replayer.replay_all(
+                records,
+                out_path=args.out or None,
+                memory_path=args.memory or None,
+                rollout_model=rollout_model,
+                write_failed=args.include_failed,
+            )
+            ok = sum(1 for o in outcomes if o.success)
+            print(f"replayed {len(outcomes)} branches, success {ok}/{len(outcomes)}")
+            for o in outcomes:
+                print(
+                    "  {} step={} alt={} success={} steps={}".format(
+                        o.episode_id, o.branch_step, o.branch_action, o.success, o.steps
+                    )
+                )
+        else:
+            branch = selected[0]
+            outcome = replayer.replay(
+                records,
+                branch,
+                out_path=args.out or None,
+                memory_path=args.memory or None,
+                write_failed=args.include_failed,
+                rollout_model=rollout_model,
+            )
+            print("replay:", outcome.replay_id)
+            print("episode:", outcome.episode_id, "step:", outcome.branch_step, "alt:", outcome.branch_action)
+            print(
+                "original={} branch={} score={:.3f} steps={}".format(
+                    outcome.original_success, outcome.success, outcome.score, outcome.steps
+                )
+            )
+            print("answer:", outcome.answer)
+            print("memoryWritten:", outcome.memory_written)
     finally:
         provider.close()
         server.stop()
-
-    print("replay:", outcome.replay_id)
-    print("episode:", outcome.episode_id, "step:", outcome.branch_step, "alt:", outcome.branch_action)
-    print(
-        "original={} branch={} score={:.3f} steps={}".format(
-            outcome.original_success, outcome.success, outcome.score, outcome.steps
-        )
-    )
-    print("answer:", outcome.answer)
-    print("memoryWritten:", outcome.memory_written)
     return 0
 
 

@@ -17,6 +17,7 @@
 > P3-Kimi 复测状态：**已完成**（复杂 26 题 D 96.15% / E 92.31%，见「二十一、Kimi 模型复测」）。
 > P3-比较方案对比状态：**已完成**（结构化候选表 vs 确定性 rank 工具，见「二十二、比较方案对比」）。
 > P3-轨迹树状态：**已完成实验版**（append-only 事件树 + HTML/PNG，见「二十三、轨迹树」）。
+> P3-轨迹树 replay 状态：**已完成**（fixed/model rollout、批量 replay、新分支生成、记忆注入验证，见「二十四、轨迹树 replay」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -845,3 +846,51 @@ python tools/run_pms_experiment.py --model openai --provider deepseek --dataset 
 - 示例：[trajectory-tree/](../trajectory-tree/)。
 
 这次改动不触碰 JitRL 数学与 agent 循环，只增加一个实验性记录器。
+
+## 二十四、轨迹树 replay：Dream-RSI 轻量版（2026-11-16）
+
+### 24.1 已完成的三件事
+
+| 目标 | 实现 | 结果 |
+|---|---|---|
+| **1. 批量 replay** | `replay_all()` + `--all` | 1 个分支全部成功（当前树只有 1 个未选候选） |
+| **2. 生成新分支** | `generate.py` + `--generate` | 5 个节点生成 **8 个新候选动作**（JSONL） |
+| **3. 验证记忆收益** | 把 replay 记忆注入 D 臂重跑 | 6/6 → **100%**（原 D 5/6 83.33%），平均步数 2.67→2.50 |
+
+### 24.2 记忆注入对比（DeepSeek，复杂 6 题）
+
+| 配置 | 成功 | 成功率 | 平均步数 | 记忆 transitions |
+|---|---|---|---|---|
+| D（无 replay 记忆） | 5/6 | 83.33% | 2.67 | 16 |
+| **D（注入 replay 记忆）** | **6/6** | **100.00%** | **2.50** | 15 |
+
+结果文件：
+- [无 replay 记忆](expert-pack-4/runs/p3-memory-benefit/summary.md)
+- [注入 replay 记忆](expert-pack-4/runs/p3-memory-inject/summary.md)
+
+### 24.3 新分支示例（generated-branches.jsonl）
+
+模型在 5 个节点上提出了 8 个原树中没有的动作，例如：
+
+- `capacity-max-01` 节点：`get_asset_by_id(AST-220-1001)`（确认最高负载主变名称）；
+- `defect-presence-01` 节点：`view_defect(DF-2026-2001)`、`view_defect(DF-2026-2002)`（查看危急/严重缺陷详情）；
+- `reliability-threshold-01` 节点：`query_outage_incident(...)`（交叉核对停电事件）；
+- `highest-model-01` 节点：`get_asset_by_id(AST-220-1001)`（查最高负载主变型号）。
+
+这些动作**尚未执行验证**，只是候选分支；下一步可以批量 replay 它们。
+
+### 24.4 运行方式
+
+```powershell
+# 批量 replay 所有未选分支（model rollout）
+python tools/replay_tree.py trajectory-tree/tree.jsonl --all --rollout model --provider deepseek \
+  --out trajectory-tree/replays-all.jsonl --memory trajectory-tree/replay-all-memory.sqlite3
+
+# 生成新分支候选
+python tools/replay_tree.py trajectory-tree/tree.jsonl --generate --provider deepseek \
+  --out trajectory-tree/generated-branches.jsonl --max-gen 5
+
+# 把 replay 记忆注入实验
+Copy-Item trajectory-tree/replay-all-memory.sqlite3 runs/<run>/D/memory.sqlite3
+python tools/run_pms_experiment.py --provider deepseek --dataset complex --arms D ...
+```
