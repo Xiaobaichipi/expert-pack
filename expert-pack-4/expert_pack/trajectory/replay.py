@@ -21,6 +21,7 @@ from typing import Any, Iterable, Sequence
 from expert_pack.contracts import (
     Candidate,
     EpisodeRecord,
+    ModelMessage,
     Observation,
     State,
     StepRecord,
@@ -138,6 +139,144 @@ def _execute(tool_provider: Any, candidate: Candidate) -> Observation:
     )
 
 
+def _load_candidates(text: str) -> list[dict[str, Any]]:
+    raw = text.strip()
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+        if raw.startswith("json"):
+            raw = raw[4:].strip()
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    if isinstance(payload, dict):
+        items = payload.get("candidates")
+        if isinstance(items, list):
+            return [item for item in items if isinstance(item, dict)]
+        if "answer" in payload:
+            return [{"action": "answer", "arguments": {"answer": payload["answer"]}}]
+    if isinstance(payload, list):
+        return [item for item in payload if isinstance(item, dict)]
+    return []
+
+
+class ModelRollout:
+    """从分支点开始，由模型重新选择后续动作（轻量 Dream rollout）。"""
+
+    def __init__(self, model: Any, max_steps: int = 5) -> None:
+        self.model = model
+        self.max_steps = max_steps
+
+    def run(
+        self,
+        task: Task,
+        tool_provider: Any,
+        seed_observation: Observation,
+        prefix_steps: Sequence[StepRecord],
+    ) -> tuple[str, list[StepRecord]]:
+        steps = list(prefix_steps)
+        observation = seed_observation
+        messages = [
+            ModelMessage(
+                "system",
+                "You are a PMS data-query agent. Return JSON only: "
+                '{"candidates":[{"action":"tool:pms/<name>","arguments":{...},"confidence":0.0}]} '
+                'or {"candidates":[{"action":"answer","arguments":{"answer":"..."}}]}. '
+                "Prefer the suggested actions. For comparison tasks, query ALL candidates before answering.",
+            ),
+            ModelMessage("user", self._prompt(task, observation, steps, tool_provider)),
+        ]
+        answer = ""
+        for _ in range(self.max_steps):
+            reply = self.model.complete(messages, temperature=0.0, max_tokens=2000)
+            raw = str(getattr(reply, "text", "") or "")
+            items = _load_candidates(raw)
+            if not items:
+                answer = raw.strip()
+                break
+            chosen = items[0]
+            action = str(chosen.get("action", ""))
+            args = dict(chosen.get("arguments") or {})
+            candidate = Candidate(
+                action_id=action,
+                kind="answer" if action == "answer" else "tool",
+                name=action.rsplit("/", 1)[-1],
+                arguments=args,
+                base_score=float(chosen.get("confidence") or 0.0),
+                source="model-replay",
+            )
+            new_observation = _execute(tool_provider, candidate)
+            steps.append(
+                StepRecord(
+                    index=len(steps),
+                    state=State(key="model-replay", text="", tokens=()),
+                    candidates=[candidate],
+                    selected=candidate,
+                    observation=new_observation,
+                )
+            )
+            observation = new_observation
+            if new_observation.kind == "answer":
+                answer = new_observation.text
+                break
+            messages.append(ModelMessage("assistant", raw[:800] or "(empty)"))
+            messages.append(
+                ModelMessage(
+                    "user",
+                    "Observation:\n" + new_observation.text[:4000] + "\nReturn the next action JSON.",
+                )
+            )
+        return answer, steps
+
+    def _prompt(
+        self,
+        task: Task,
+        observation: Observation,
+        steps: Sequence[StepRecord],
+        tool_provider: Any,
+    ) -> str:
+        tools = []
+        try:
+            for spec in tool_provider.list_tools():
+                schema = getattr(spec, "input_schema", {}) or {}
+                properties = schema.get("properties") or {}
+                params = ", ".join(f"{name}*" for name in properties)
+                tools.append(
+                    "tool:{}/{}  {}{}".format(
+                        getattr(spec, "provider", "pms"),
+                        getattr(spec, "name", ""),
+                        getattr(spec, "description", ""),
+                        f" params: {params}" if params else "",
+                    )
+                )
+        except Exception:
+            tools = []
+        lines = [
+            "TASK: " + task.goal,
+            "SUCCESS CRITERIA: " + (task.success_criteria or "(not given)"),
+            "SUGGESTED ACTIONS: " + str(task.context.get("suggestedActions") or []),
+            "PLAN: " + str(task.context.get("planHint") or ""),
+            "",
+            "CURRENT OBSERVATION:",
+            observation.text[:5000],
+            "",
+            "STEPS:",
+        ]
+        for step in steps[-4:]:
+            lines.append(
+                "- {} -> ok={}: {}".format(
+                    step.selected.action_id, step.observation.ok, step.observation.text[:400]
+                )
+            )
+        lines.append("")
+        lines.append("AVAILABLE TOOLS:")
+        lines.extend(tools[:30])
+        lines.append("")
+        lines.append("Return ONE next action as JSON. Use only these action ids if possible:")
+        lines.append(str(task.context.get("suggestedActions") or []))
+        return "\n".join(lines)
+
+
 class TreeReplayer:
     def __init__(self, tool_provider: Any) -> None:
         self.tool_provider = tool_provider
@@ -150,6 +289,7 @@ class TreeReplayer:
         out_path: str | None = None,
         memory_path: str | None = None,
         write_failed: bool = False,
+        rollout_model: Any | None = None,
     ) -> ReplayOutcome:
         episode = episode_record(records, branch.episode_id)
         task = task_from_record(episode)
@@ -183,7 +323,18 @@ class TreeReplayer:
         # 分支点：执行未选候选（用分支节点所属的状态；它不是父节点执行后的状态，
         # 但 tree 里 node.state 就是“做这个动作之前”的状态）
         add(_candidate(branch.alternative), branch.node)
-        if not answer:
+        rollout_mode = "fixed"
+        if not answer and rollout_model is not None:
+            # 模型从分支后的新 observation 重新规划后续动作
+            rollout_mode = "model"
+            rollout = ModelRollout(rollout_model, max_steps=5)
+            answer, steps = rollout.run(
+                task,
+                self.tool_provider,
+                steps[-1].observation,
+                steps,
+            )
+        if not answer and rollout_mode == "fixed":
             # 固定后续策略：沿用原轨迹在该 step 之后实际选择的动作
             for node in nodes:
                 if int(node.get("step", 0)) <= branch_step:
@@ -231,6 +382,7 @@ class TreeReplayer:
             "verified": verified,
             "memoryWritten": memory_written,
             "steps": len(steps),
+            "rollout": rollout_mode,
             "createdAt": _now(),
         }
         if out_path:

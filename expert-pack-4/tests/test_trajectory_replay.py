@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+from expert_pack.adapters.model_scripted import ScriptedModel
 from expert_pack.contracts import ToolResult
 from expert_pack.trajectory.replay import TreeReplayer, find_branches
 
@@ -65,6 +66,19 @@ class TreeReplayTest(unittest.TestCase):
             self.assertTrue(memory.is_file())
             written = json.loads(out.read_text(encoding="utf-8").splitlines()[0])
             self.assertEqual(written["alternative"]["actionId"], "tool:fake/lookup")
+
+    def test_model_rollout_after_branch(self) -> None:
+        data = records()
+        branches = find_branches(data)
+        model = ScriptedModel(
+            ['{"candidates":[{"action":"answer","arguments":{"answer":"yes"},"confidence":0.9}]}']
+        )
+        outcome = TreeReplayer(FakeProvider()).replay(
+            data, branches[0], rollout_model=model
+        )
+        self.assertTrue(outcome.success)
+        self.assertEqual(outcome.record["rollout"], "model")
+        self.assertEqual(outcome.steps, 2)
 
 
 if __name__ == "__main__":

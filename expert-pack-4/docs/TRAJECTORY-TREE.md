@@ -129,4 +129,33 @@ memoryWritten: True
 - `meta.verified = true`
 
 注意：这是**固定后续策略**的 replay，不是“dream 出新策略”；当前分支也只覆盖一个
-未选候选。下一步应让模型在分支点重新选择后续动作，并批量 replay 多个候选。
+未选候选。
+
+### 8.1 模型驱动的 branch rollout
+
+`--rollout model` 会从分支点的新 observation 开始，让模型重新规划后续动作：
+
+```powershell
+python tools/replay_tree.py trajectory-tree/tree.jsonl \
+  --episode pms-E:006:defect-presence-02 --step 1 \
+  --alt tool:pms/inquire_defect --rollout model --provider deepseek \
+  --out trajectory-tree/replays-model.jsonl \
+  --memory trajectory-tree/replay-model-memory.sqlite3
+```
+
+本次示例：
+
+```text
+replay: replay:e116b9f80b
+original=True branch=True score=1.000 steps=3
+answer: 否
+memoryWritten: True
+rollout: model
+```
+
+写回记忆为 1 个 episode / 3 个 transition；动作序列为
+`inquire_defect → inquire_defect → answer`。
+
+当前 `ModelRollout` 是一个独立的小型 rollout prompt，**不修改 agent 主循环**；
+它从分支后的 observation 开始，不重放分支前的步骤。下一步可以批量 replay 多个候选，
+并让模型自己提出新的分支动作。

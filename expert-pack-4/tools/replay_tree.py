@@ -25,6 +25,47 @@ if str(PMS_SKILL / "scripts") not in sys.path:
     sys.path.insert(0, str(PMS_SKILL / "scripts"))
 
 
+def _load_env(path: Path) -> None:
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        text = line.strip()
+        if not text or text.startswith("#") or "=" not in text:
+            continue
+        key, value = text.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+def _build_model(provider: str):
+    from expert_pack.adapters.model_openai import OpenAIConfig, OpenAIModel
+
+    settings = {
+        "ark": ("ARK_API_KEY", "ARK_OPENAI_BASE_URL", "ARK_MODEL", {}),
+        "deepseek": (
+            "DEEPSEEK_API_KEY",
+            "DEEPSEEK_OPENAI_BASE_URL",
+            "DEEP_MODEL",
+            {"max_tokens": 2000},
+        ),
+        "kimi": (
+            "KIMI_API_KEY",
+            "KIMI_OPENAI_BASE_URL",
+            "KIMI_MODEL",
+            {"temperature": 1.0, "max_tokens": 2000},
+        ),
+    }[provider]
+    return OpenAIModel(
+        OpenAIConfig(
+            model=os.environ.get(settings[2], ""),
+            base_url=os.environ.get(settings[1], ""),
+            api_key_env=settings[0],
+            timeout=180.0,
+            max_tokens=2000,
+            extra_body=dict(settings[3]),
+        )
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="轨迹树反事实 replay")
     parser.add_argument("tree", help="tree.jsonl")
@@ -35,8 +76,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default="", help="replay 记录 JSONL")
     parser.add_argument("--memory", default="", help="把验证成功的分支写入该 sqlite 记忆")
     parser.add_argument("--include-failed", action="store_true", help="失败分支也写记忆")
+    parser.add_argument("--rollout", choices=("fixed", "model"), default="fixed",
+                        help="fixed=沿用原后续动作；model=从分支点由模型重新规划")
+    parser.add_argument("--provider", choices=("ark", "deepseek", "kimi"), default="deepseek")
     parser.add_argument("--list", action="store_true", help="只列出可选分支")
     args = parser.parse_args(argv)
+    _load_env(WORKSPACE / ".env")
 
     from expert_pack.trajectory.replay import TreeReplayer, find_branches, episode_record
     from expert_pack.trajectory.tree_store import load_records
@@ -104,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
         },
         timeout=20.0,
     )
+    rollout_model = _build_model(args.provider) if args.rollout == "model" else None
     try:
         replayer = TreeReplayer(provider)
         outcome = replayer.replay(
@@ -112,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
             out_path=args.out or None,
             memory_path=args.memory or None,
             write_failed=args.include_failed,
+            rollout_model=rollout_model,
         )
     finally:
         provider.close()

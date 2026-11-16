@@ -7,7 +7,9 @@
 - `tree.png`：第一棵子树；
 - `tree-branch.png`：带一个“未选分支”的子树。
 
-- `replays.jsonl`：一次反事实 branch replay 的记录；
-- `replay-memory.sqlite3`：验证成功的 replay 分支写回的记忆。
+- `replays.jsonl`：一次固定后续策略的反事实 branch replay 记录；
+- `replay-memory.sqlite3`：固定策略 replay 写回的记忆；
+- `replays-model.jsonl`：一次模型重新规划后续动作的 branch replay 记录；
+- `replay-model-memory.sqlite3`：模型 rollout 验证成功后写回的记忆。
 
 生成/渲染方式见 [../docs/TRAJECTORY-TREE.md](../docs/TRAJECTORY-TREE.md)。

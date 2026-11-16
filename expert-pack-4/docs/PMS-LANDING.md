@@ -841,7 +841,7 @@ python tools/run_pms_experiment.py --model openai --provider deepseek --dataset 
 - 存每个 step 的**全部候选动作**（selected + alternatives）；
 - 不按人类意图/Skill 标签做硬剪枝，树由实际轨迹长出来；
 - 支持 `--tree-store` 边跑边记，HTML 查看森林，PNG 看单棵子树；
-- `tools/replay_tree.py` 可对未选分支做固定后续策略的 replay，成功分支写回记忆；
+- `tools/replay_tree.py` 支持 fixed 与 model 两种 branch replay，成功分支写回记忆；
 - 示例：[trajectory-tree/](../trajectory-tree/)。
 
 这次改动不触碰 JitRL 数学与 agent 循环，只增加一个实验性记录器。
