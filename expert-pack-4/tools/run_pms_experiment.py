@@ -202,6 +202,7 @@ def _run_arm(
     provider: str = "ark",
     rank_tool: bool = False,
     structured_compare: bool = False,
+    tree_store_path: str | None = None,
 ) -> dict[str, Any]:
     if dataset == "extended":
         from expert_pack.extensions.pms.tasks import build_extended_tasks
@@ -248,6 +249,11 @@ def _run_arm(
                     "可调用 tool:pms-rank/rank_stations(metric=availabilityRate, direction=min) "
                     "或 rank_devices(metric=loadRate, direction=max) 直接得到 winner。"
                 )
+    tree_store = None
+    if tree_store_path:
+        from expert_pack.trajectory.tree_store import TrajectoryTreeStore
+
+        tree_store = TrajectoryTreeStore(tree_store_path)
     tool_provider, rank_provider, store, agent, skills, server = _build_arm(
         arm,
         out,
@@ -302,6 +308,16 @@ def _run_arm(
                     handle.write(json.dumps(record, ensure_ascii=False) + "\n")
                 print(f"[{arm}] {index:02d}/{len(tasks)} {task.id:<24} ERROR {error}")
                 continue
+            if tree_store is not None:
+                tree_store.record(
+                    result,
+                    {
+                        "arm": arm,
+                        "provider": provider,
+                        "model": model_kind,
+                        "dataset": dataset,
+                    },
+                )
             trajectory = result.trajectory
             tool_errors = sum(1 for step in trajectory.steps if not step.observation.ok)
             record = {
@@ -417,6 +433,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--enforce-hints", action="store_true", help="强制只允许任务建议的工具")
     parser.add_argument("--rank-tool", action="store_true", help="绑定 pms-rank 确定性比较工具")
     parser.add_argument("--structured-compare", action="store_true", help="要求比较题先输出候选表")
+    parser.add_argument("--tree-store", default=None, help="轨迹树 JSONL 输出路径")
     args = parser.parse_args(argv)
 
     load_env_file(WORKSPACE / ".env")
@@ -445,6 +462,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.provider,
                 args.rank_tool,
                 args.structured_compare,
+                args.tree_store,
             )
         )
     _write_report(out, summaries)

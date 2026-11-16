@@ -16,6 +16,7 @@
 > P3-比较引导状态：**已实现**（系统/动态比较约束 + 任务步数补齐，真实模型复测受账号配额限制，见「二十、比较引导」）。
 > P3-Kimi 复测状态：**已完成**（复杂 26 题 D 96.15% / E 92.31%，见「二十一、Kimi 模型复测」）。
 > P3-比较方案对比状态：**已完成**（结构化候选表 vs 确定性 rank 工具，见「二十二、比较方案对比」）。
+> P3-轨迹树状态：**已完成实验版**（append-only 事件树 + HTML/PNG，见「二十三、轨迹树」）。
 
 ## 一、已验证的集成形态（本轮 smoke test）
 
@@ -830,3 +831,16 @@ python tools/run_pms_experiment.py --model openai --provider deepseek --dataset 
 python tools/run_pms_experiment.py --model openai --provider deepseek --dataset complex --arms E \
   --enforce-hints --structured-compare --out runs/p3-deepseek-structured
 ```
+
+## 二十三、轨迹树存储与可视化（2026-11-16）
+
+新增实验性能力：append-only 轨迹树 + 自包含 HTML 可视化，详见
+[docs/TRAJECTORY-TREE.md](TRAJECTORY-TREE.md)。
+
+- 存**完整 observation**（不是被截断的 prompt 片段）；
+- 存每个 step 的**全部候选动作**（selected + alternatives）；
+- 不按人类意图/Skill 标签做硬剪枝，树由实际轨迹长出来；
+- 支持 `--tree-store` 边跑边记，HTML 查看森林，PNG 看单棵子树；
+- 示例：[trajectory-tree/](../trajectory-tree/)。
+
+这次改动不触碰 JitRL 数学与 agent 循环，只增加一个实验性记录器。
