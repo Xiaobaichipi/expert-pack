@@ -1,5 +1,7 @@
 # 变电智能问数专家包
 
+[English README](README.en.md)
+
 PMS（生产管理系统）× JitRL 实验框架：26 个接口、4 组任务集、5 组对照实验、轨迹树 replay 与 Skill 候选提炼。
 
 ## 一、项目结构
